@@ -88,9 +88,9 @@ function tryShowConfirmByElement(opts) {
 
 export default {
     info: function (opts) {
-        var process=tryShowInfoByIView();
+        var process=tryShowInfoByIView(opts);
         if(!process){
-            tryShowInfoByElement();
+            tryShowInfoByElement(opts);
         }
     },
     success: function (opts) {
@@ -103,21 +103,21 @@ export default {
         }
     },
     warning: function (opts) {
-        var process=tryShowWarnByIView();
+        var process=tryShowWarnByIView(opts);
         if(!process){
-            tryShowWarnByElement();
+            tryShowWarnByElement(opts);
         }
     },
     error: function (opts) {
-        var process=tryShowErrorByIView();
+        var process=tryShowErrorByIView(opts);
         if(!process){
-            tryShowErrorByElement();
+            tryShowErrorByElement(opts);
         }
     },
     confirm: function (opts) {
-        var process=tryShowConfirmByIView();
+        var process=tryShowConfirmByIView(opts);
         if(!process){
-            tryShowConfirmByElement();
+            tryShowConfirmByElement(opts);
         }
     }
 }
