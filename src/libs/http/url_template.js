@@ -145,8 +145,10 @@
     UrlTemplate.prototype.parse = function (template) {
         var that = this;
         var operators = ['+', '#', '.', '/', ';', '?', '&'];
+        var variables = [];
 
         return {
+            vars: variables,
             expand: function (context) {
                 return template.replace(/\{([^\{\}]+)\}|([^\{\}]+)/g, function (_, expression, literal) {
                     if (expression) {
@@ -161,6 +163,7 @@
                         expression.split(/,/g).forEach(function (variable) {
                             var tmp = /([^:\*]*)(?::(\d+)|(\*))?/.exec(variable);
                             values.push.apply(values, that.getValues(context, operator, tmp[1], tmp[2] || tmp[3]));
+                            variables.push(tmp[1]);
                         });
 
                         if (operator && operator !== '+') {

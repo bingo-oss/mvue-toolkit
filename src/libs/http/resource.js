@@ -146,6 +146,9 @@ function ResourceBase(){
                 }
                 let parsedUrl=urlTemplate.parse(httpConfig.url);
                 var actionUrl=parsedUrl.expand(httpConfig.params);
+                _.forEach(parsedUrl.vars,function (item) {
+                    delete httpConfig.params[item];
+                })
                 httpConfig.url=actionUrl;
               return http.request(httpConfig);
             }
