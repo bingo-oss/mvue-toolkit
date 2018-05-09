@@ -28,7 +28,7 @@ function filterRoutesByModuleName(_data, moduleName) {
   for (var i = 0; i < _data.length; i++) {
     var item = _data[i];
     if(_.isEmpty(item.meta)
-        || _isEmpty(item.meta.module)
+        || _.isEmpty(item.meta.module)
         || (item.meta.module === moduleName)){
         routes.push(item);
     }
