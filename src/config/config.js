@@ -15,11 +15,11 @@ var cachedConfig = null;
 * @returns {*} 配置项的值
 */
 function getConfigVal(key) {
-    if (cachedConfig == null) {
-        alert("配置未正确加载，请通过loadServerConfig加载配置。");
-        return;
-    }
-  return cachedConfig[key];
+  if (cachedConfig == null) {
+      alert("配置未正确加载，请通过loadServerConfig加载配置。");
+      return;
+  }
+return cachedConfig[key];
 };
 
 /**
@@ -62,7 +62,7 @@ mergedConfig.getConfigVal = function (key) {
 }
 
 /**
-* 从服务端加载配置项，返回Promise对象，
+* 从服务端加载配置项，返回Promise对象
 */
 mergedConfig.loadServerConfig = function () {
   return loadServerConfig();
@@ -141,8 +141,7 @@ mergedConfig.getApiBaseUrl = function () {
   if (!_.isEmpty(url)) {
       return url;
   }
-  //未配置时，使用配置的基地址为api地址
-  url = window.config.baseServerUrl;
+  return getConfigVal("service.metad.api.endpoint");
 };
 
 /**
@@ -260,4 +259,11 @@ mergedConfig.getBlogApiUrl = function () {
 mergedConfig.getLinkEndpoint = function () {
   return getConfigVal("service.link.endpoint");
 };
+/**
+ * 获取元数据api接口地址
+ * @return {*}
+ */
+mergedConfig.getMetadApiEndpoint = function () {
+  return getConfigVal("service.metad.api.endpoint");
+}
 module.exports = mergedConfig;
