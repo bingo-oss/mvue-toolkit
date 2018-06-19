@@ -10,7 +10,6 @@
     "dist": "npm run dev2",
     "lint": "eslint --fix --ext .js,.vue src",
     "unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",
-    "prepublish": "npm run dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "bingosoft",
