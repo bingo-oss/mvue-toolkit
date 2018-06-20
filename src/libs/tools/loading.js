@@ -4,8 +4,8 @@
 import  context from "../extend/context";
 function tryShowLoadingByIView() {
     var vue=context.getCurrentVue();
-    if(vue.$Spin){
-        vue.$Spin.show();
+    if(vue.$Loading){
+        vue.$Loading.start();
         return true;
     }
     return false;
@@ -13,29 +13,20 @@ function tryShowLoadingByIView() {
 
 function tryHideLoadingByIView() {
     var vue=context.getCurrentVue();
-    if(vue.$Spin){
-        vue.$Spin.hide();
+    if(vue.$Loading){
+        vue.$Loading.finish();
         return true;
     }
     return false;
 }
 
-function tryShowLoadingByElement() {
+function tryErrorLoadingByIView() {
     var vue=context.getCurrentVue();
-    if(vue.$loading){
-        var loading =vue.$loading({
-            lock: true,
-            text: 'Loading',
-            spinner: 'el-icon-loading',
-            background: 'rgba(0, 0, 0, 0.9)'
-        });
+    if(vue.$Loading){
+        vue.$Loading.error();
         return true;
     }
     return false;
-}
-
-function tryHideLoadingByElement() {
-    //TODO;
 }
 
 export  default {
@@ -49,6 +40,12 @@ export  default {
         var processed=tryHideLoadingByIView();
         if(!processed){
             tryHideLoadingByElement();
+        }
+    },
+    errorLoading:function () {
+        var processed=tryErrorLoadingByIView();
+        if(!processed){
+            tryErrorLoadingByIView();
         }
     }
 }

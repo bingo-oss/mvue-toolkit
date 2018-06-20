@@ -15,7 +15,6 @@ export default {
     config:config,
     resource: resource,
     router:router,
-    validator: validator,
     utils:utils,
     install:function (vue,options) {
         context.init(new vue({

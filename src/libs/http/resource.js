@@ -18,28 +18,49 @@ Resource.actions = {
     delete: {method: 'DELETE'}
 };
 
-function opts(action, args) {
-    var options = _.assign({}, action), params = {}, body;
-    switch (args.length) {
-        case 2:
-            params = args[0];
-            body = args[1];
-            break;
-        case 1:
-            if (/^(POST|PUT|PATCH)$/i.test(options.method)) {
-                body = args[0];
-            } else {
+function opts(action, args, name) {
+    var options = _.assign({}, action), params = {}, body,_options={};
+    if(name==="get"||name==="query"){
+        switch (args.length) {
+            case 2:
                 params = args[0];
-            }
-            break;
-        case 0:
-            break;
-        default:
-            throw 'Expected up to 2 arguments [params, body], got ' + args.length + ' arguments';
+                _options = args[1];
+                break;
+            case 1:
+                params = args[0];
+                break;
+            case 0:
+                break;
+            default:
+                throw 'Expected up to 2 arguments [params, _options], got ' + args.length + ' arguments';
+        }
+    }else{
+        switch (args.length) {
+            case 3:
+                params = args[0];
+                body = args[1];
+                _options = args[2];
+                break;
+            case 2:
+                params = args[0];
+                body = args[1];
+                break;
+            case 1:
+                if (/^(POST|PUT|PATCH)$/i.test(options.method)) {
+                    body = args[0];
+                } else {
+                    params = args[0];
+                }
+                break;
+            case 0:
+                break;
+            default:
+                throw 'Expected up to 3 arguments [params, body,_options], got ' + args.length + ' arguments';
+        }
     }
     options.data = body;
     options.params = _.assign({}, options.params, params);
-    return options;
+    return Object.assign(options,_options);
 }
 
 const http = axios.create();
@@ -62,7 +83,7 @@ http.interceptors.request.use(function (config) {
             if(!_.isEmpty(pendingRequests)){
                 loading.showLoading();
             }
-        },1000);
+        },200);
     }
     return config;
 }, function (error) {
@@ -80,7 +101,7 @@ http.interceptors.response.use(function (response) {
 }, function (error) {
     if(error.config.uid){
         delete pendingRequests[error.config.uid];
-        loading.hideLoading();
+        loading.errorLoading();
     }
 
     var response=error.response;
@@ -89,7 +110,6 @@ http.interceptors.response.use(function (response) {
     }else if(response.status==404){
         //not found
     }else if (response.status>=400){
-        debugger;
         var message=response.data;
         if(!!message.message){
             message=message.message||`${message.error}:${message.error_description}`;
@@ -151,13 +171,16 @@ function ResourceBase(){
                     delete httpConfig.params[item];
                 })
                 httpConfig.url=actionUrl;
-              return http.request(httpConfig);
+                return http.request(httpConfig);
             }
     }
 }
 
-export default function Resource(url, actions) {
+export default function Resource(url, actions,_options) {
     var self = this || {}, resource =ResourceBase();
+    var options=_options||{};
+    //基本地址参数覆盖，root兼容Vue-resource的参数
+    resource.baseUrl=options.root||options.baseUrl||resource.baseUrl;
 
     actions = _.assign({},
         Resource.actions,
@@ -170,7 +193,7 @@ export default function Resource(url, actions) {
             "showLoading":true
         }, action);
         resource[name] = function () {
-            let httpConfig = opts(action,arguments);            
+            let httpConfig = opts(action,arguments,name);            
             return resource.request(httpConfig);
         };
     });

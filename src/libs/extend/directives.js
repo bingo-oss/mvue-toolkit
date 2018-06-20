@@ -13,7 +13,7 @@ var WordLimit=function($dom,value){
         $dom.attr("title",value.text);
     }
 };
-export default function CustomDirectives(Vue) {
+module.exports = function CustomDirectives(Vue) {
     //自动根据设置的长度设置文本的...样式，如：v-wordlimit='{length:50,text:"文本值"}'表示超过50个字符出现...
     Vue.directive('wordlimit', {
         inserted: function (el,binding,vnode,oldVnode) {
