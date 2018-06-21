@@ -27,10 +27,8 @@ function filterRoutesByModuleName(_data, moduleName) {
   var routes = [];
   for (var i = 0; i < _data.length; i++) {
     var item = _data[i];
-    if(_.isEmpty(item.meta)
-        || _.isEmpty(item.meta.module)
-        || (item.meta.module === moduleName)){
-        routes.push(item);
+    if (item.meta && item.meta.module && (item.meta.module === moduleName)) {
+      routes.push(item);
     }
   }
   return routes;
@@ -47,13 +45,13 @@ function toRealRouteData(_data, _moduleName, r) {
     obj.path = item.path||item.route_path;
     //这个地方引用组件通过动态的r函数require，由各模块自己提供
     if (item.component) {
-        try{
-            var file=r(item.component);
-            obj.component = r(item.component);
-        }catch (ex){
-            console.log("fail to load :"+item.component);
-            continue;
-        }
+      try{
+          var file=r(item.component);
+          obj.component = r(item.component);
+      }catch (ex){
+          console.log("fail to load :"+item.component);
+          continue;
+      }
     }
     if (item.alias) {
       obj.alias = item.alias;
@@ -78,60 +76,15 @@ function toRealRouteData(_data, _moduleName, r) {
   return routes;
 }
 //module 模块名称，r 是此模块require的模块动态加载函数
-function getModuleRoutes(module,routersBaseData, r) {
-    var filteredData = filterRoutesByModuleName(routersBaseData, module);
-    var parentRouter=filteredData;
-    if(parentRouter.length>0 && filteredData[0].children){
-        parentRouter=filteredData[0].children;
-    }
-
-    parentRouter.push({
-        meta: {
-            requireAuth: true
-        },
-        name: "defaultEntityList",
-        component: "metabase/list",
-        path: "entities/:entityName/list",
-        beforeEnter: function (to, from, next) {
-            propsResolve(to);
-            next();
-        }
-    });
-    parentRouter.push({
-        meta: {
-            requireAuth: true
-        },
-        name: "defaultCreateForm",
-        component: 'metabase/form',
-        path: "entities/:entityName/create",
-        beforeEnter: function (to, from, next) {
-            propsResolve(to);
-            next();
-        }
-    });
-    parentRouter.push({
-        meta: {
-            requireAuth: true
-        },
-        name: "defaultEditForm",
-        component: 'metabase/form',
-        path: "entities/:entityName/edit/:id",
-        beforeEnter: function (to, from, next) {
-            propsResolve(to);
-            next();
-        }
-    });
-
-    var routersData = toRealRouteData(filteredData, module, r);
-    return routersData;
+function getModuleRoutes(module, routersBaseData,r,routersExData) {
+  var filteredData = filterRoutesByModuleName(routersBaseData, module);
+  var moduleRoutersExData = routersExData&&routersExData[module];
+  if (!!moduleRoutersExData) {
+    filteredData = mergeData(filteredData, moduleRoutersExData);
+  }
+  var routersData = toRealRouteData(filteredData, module, r);
+  return routersData;
 }
-
-function propsResolve(router) {
-    if (!_.isEmpty(router.params.menu)) {
-        router.meta["menu"] = router.params.menu;
-    }
-};
-
-export  default {
+module.exports = {
   getModuleRoutes:getModuleRoutes
 };
