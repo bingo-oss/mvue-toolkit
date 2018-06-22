@@ -2,15 +2,10 @@
   "name": "mvue-toolkit",
   "version": "0.0.4",
   "description": "mvue project toolkit components",
-  "main": "src/index.js",
+  "main": "dist/lib/index.js",
   "scripts": {
-    "dev": "webpack-dev-server --content-base test/ --open --inline --hot --compress --history-api-fallback --port 8081 --config build/webpack.dev.config.js",
-    "dev2": "webpack --config build/webpack.dist.dev.config.js",
-    "prod": "webpack --config build/webpack.dist.prod.config.js",
-    "dist": "npm run dev2",
-    "lint": "eslint --fix --ext .js,.vue src",
-    "unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node build/build-lib.js",
+    "prepublish":"npm run build"
   },
   "author": "bingosoft",
   "license": "Apache 2.0",
@@ -104,7 +99,8 @@
     "webpack-dev-server": "^2.11.1",
     "webpack-merge": "^3.0.0",
     "compression-webpack-plugin": "^1.1.10",
-    "webpack-bundle-analyzer": "^2.2.1"
+    "webpack-bundle-analyzer": "^2.2.1",
+    "webpack-node-externals": "^1.7.2"
   },
   "engines": {
     "node": ">= 4.0.0",

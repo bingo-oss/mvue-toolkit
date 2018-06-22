@@ -266,4 +266,5 @@ mergedConfig.getLinkEndpoint = function () {
 mergedConfig.getMetadApiEndpoint = function () {
   return getConfigVal("service.metad.api.endpoint");
 }
+window.config=window.Config=mergedConfig;
 module.exports = mergedConfig;
