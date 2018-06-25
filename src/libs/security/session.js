@@ -5,6 +5,7 @@ var ssoclient=require("./ssoclient");
 var Cookies=require("js-cookie");
 var store = require('store2');
 var _=require("lodash");
+var utils=require('../utils').default;
 
 var sessionKeyPrefix="_session_";
 var sessionCookieKey="m_vue_session_id";
@@ -81,7 +82,7 @@ function signIn(tokenInfo){
   session.expires=session.loginTime+tokenInfo.expiresIn*1000-60000;
   session.sessionId="session_id_"+session.loginTime;
   Cookies.set(sessionCookieKey,session.sessionId,{
-    path:getWebContext()
+    path:utils.getWebContext()
   });
   store.set(getSessionKey(),session);
 }
@@ -97,19 +98,11 @@ function signOut(returnUrl) {
 function removeSession() {
   session=_.extend({},anonymousSession);
   store.remove(getSessionKey());
-  Cookies.remove(sessionCookieKey,{path:getWebContext()});
-}
-
-function  getWebContext() {
-  var webContext=window.location.pathname;
-  if(webContext.indexOf('/')>1){
-    webContext=webContext.substring(0,webContext.lastIndexOf('/'));
-  }
-  return webContext;
+  Cookies.remove(sessionCookieKey,{path:utils.getWebContext()});
 }
 
 function getSessionKey() {
-  return sessionKeyPrefix+getWebContext();
+  return sessionKeyPrefix+utils.getWebContext();
 }
 
 module.exports={

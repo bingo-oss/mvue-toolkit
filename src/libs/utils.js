@@ -267,6 +267,13 @@ var utils = {
             }
         });
         return _query;
+    },
+    getWebContext() {
+        var webContext=window.location.pathname;
+        if(webContext.indexOf('/')>1){
+            webContext=webContext.substring(0,webContext.lastIndexOf('/'));
+        }
+        return webContext;
     }
 };
 

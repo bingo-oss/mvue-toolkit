@@ -3,18 +3,23 @@
  */
 var http=require("axios");
 var _=require("lodash");
+var store = require('store2');
+var utils=require('../libs/utils').default;
+
 
 if (!window.config) {
   alert("全局配置文件未引入，请检查项目代码");
 }
-
-var cachedConfig = null;
+function cachedConfigKey(){
+  return "_cachedConfig"+utils.getWebContext();
+}
 /**
 * 根据配置项Key获取配置
 * @param key 配置项Key
 * @returns {*} 配置项的值
 */
 function getConfigVal(key) {
+  var cachedConfig=store.get(cachedConfigKey());
   if (cachedConfig == null) {
       alert("配置未正确加载，请通过loadServerConfig加载配置。");
       return;
@@ -28,7 +33,8 @@ return cachedConfig[key];
 function loadServerConfig() {
   return new Promise(function(resolve, reject) {
         http.get(getServerConfigUr()).then(function ({data}) {
-            cachedConfig = _.extend({}, window.config, data);
+            var cachedConfig = _.extend({}, window.config, data);
+            store.set(cachedConfigKey(),cachedConfig);
             resolve(cachedConfig);
         }).catch(function (error) {
             console.log(error.message);
@@ -266,5 +272,4 @@ mergedConfig.getLinkEndpoint = function () {
 mergedConfig.getMetadApiEndpoint = function () {
   return getConfigVal("service.metad.api.endpoint");
 }
-window.config=window.Config=mergedConfig;
 module.exports = mergedConfig;
