@@ -63,7 +63,7 @@ function opts(action, args, name) {
     return Object.assign(options,_options);
 }
 
-const http = axios.create();
+export const http = axios.create();
 // Add a request interceptor
 var pendingRequests={};
 

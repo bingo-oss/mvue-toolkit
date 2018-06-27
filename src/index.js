@@ -1,7 +1,7 @@
 import config from './config/config';
 import session from './libs/security/session';
 import ssoclient from './libs/security/ssoclient';
-import resource,{defaultOption} from './libs/http/resource';
+import resource,{defaultOption,http} from './libs/http/resource';
 import validator from './libs/extend/validator';
 import  utils from './libs/utils';
 import  router from './libs/extend/router';
@@ -28,6 +28,7 @@ export default {
     ssoclient: ssoclient,
     config:config,
     resource: resource,
+    http,
     router:router,
     utils:utils,
     install:install
