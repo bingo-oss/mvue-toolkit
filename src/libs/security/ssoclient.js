@@ -212,7 +212,7 @@ function resolveParams(url) {
     var indexEq = pair.indexOf('='), key = pair, value = null;
     if(indexEq > 0) {
       key = pair.substring(0, indexEq);
-      value = pair.substring(indexEq + 1, pair.length);
+      value = decodeURIComponent(pair.substring(indexEq + 1, pair.length));
     }
     params[key] = value;
   }
