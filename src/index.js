@@ -8,22 +8,7 @@ import  router from './libs/extend/router';
 import  directives from './libs/extend/directives';
 import context from './libs/extend/context';
 
-const install=function (vue,options={}) {
-    if (install.installed) return;
-    context.init(new vue({
-        data: {  }
-    }));
-    if(options.vee){
-        new validator(vue,options.vee);
-    }
-    if(options.baseUrlForResource){
-        defaultOption({
-            baseUrl:options.baseUrlForResource
-        })
-    }
-    new directives(vue);
-}
-export default {
+const mvueToolkit={
     session: session,
     ssoclient: ssoclient,
     config:config,
@@ -31,6 +16,31 @@ export default {
     http,
     router:router,
     utils:utils,
-    install:install
-};
+    install:function (vue,options) {
+        if (mvueToolkit.installed) return;
+        context.init(new vue({
+            data: {  }
+        }));
+        const  self=this;
+        vue.mvueToolkit=self;
+        Object.defineProperties(vue.prototype, {
+            $mvueToolkit:{
+                get(){
+                    return self;
+                }
+            }
+        });
+        if(options.vee){
+            new validator(vue,options.vee);
+        }
+        if(options.baseUrlForResource){
+            defaultOption({
+                baseUrl:options.baseUrlForResource
+            })
+        }
+        new directives(vue);
+    }
+}
+
+export default mvueToolkit;
 
