@@ -193,7 +193,8 @@ export default function Resource(url, actions,_options) {
             "showLoading":true
         }, action);
         resource[name] = function () {
-            let httpConfig = opts(action,arguments,name);            
+            var args = Array.prototype.slice.call(arguments);
+            let httpConfig = opts(action,args,name);
             return resource.request(httpConfig);
         };
     });
