@@ -22,14 +22,7 @@ const mvueToolkit={
             data: {  }
         }));
         const  self=this;
-        vue.mvueToolkit=self;
-        Object.defineProperties(vue.prototype, {
-            $mvueToolkit:{
-                get(){
-                    return self;
-                }
-            }
-        });
+        vue.prototype.$mvueToolkit=self;
         if(options.vee){
             new validator(vue,options.vee);
         }
