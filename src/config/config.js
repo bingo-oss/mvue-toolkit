@@ -2,7 +2,6 @@
  * 系统相关配置信息
  */
 var http=require("axios");
-var _=require("lodash");
 var store = require('store2');
 var utils=require('../libs/utils').default;
 

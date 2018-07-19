@@ -7,8 +7,6 @@ import  urlTemplate from "./url_template";
 import loading from "../tools/loading";
 import modal from "../tools/modal";
 
-var _ = require('lodash');
-
 Resource.actions = {
     get: {method: 'GET'},
     save: {method: 'POST'},
@@ -167,7 +165,7 @@ function ResourceBase(){
                 }
                 let parsedUrl=urlTemplate.parse(httpConfig.url);
                 var actionUrl=parsedUrl.expand(httpConfig.params);
-                _.forEach(parsedUrl.vars,function (item) {
+                _.forIn(parsedUrl.vars,function (item) {
                     delete httpConfig.params[item];
                 })
                 httpConfig.url=actionUrl;
@@ -187,7 +185,7 @@ export default function Resource(url, actions,_options) {
         actions
     );
 
-    _.forEach(actions, (action, name) => {
+    _.forIn(actions, (action, name) => {
         action = _.merge({
             "url":url,
             "showLoading":true

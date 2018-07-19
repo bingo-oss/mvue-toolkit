@@ -261,7 +261,7 @@ var utils = {
     },
     ignoreSpecialQuery(query){
         let _query=_.cloneDeep(query);
-        _.each(Utils.queryKeys,function(key){
+        _.forIn(Utils.queryKeys,function(key){
             if(_.has(_query,key)){
                 delete _query[key];
             }

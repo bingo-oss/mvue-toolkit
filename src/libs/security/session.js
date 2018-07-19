@@ -4,7 +4,6 @@
 var ssoclient=require("./ssoclient");
 var Cookies=require("js-cookie");
 var store = require('store2');
-var _=require("lodash");
 var utils=require('../utils').default;
 
 var sessionKeyPrefix="_session_";

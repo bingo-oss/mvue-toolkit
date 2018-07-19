@@ -468,7 +468,7 @@ return Promise.all(promises).then(function (results) {
       let _params={};
       if(isQueryUrl){
         let _filters=[];
-        _.each(params,function(value,key){
+        _.forIn(params,function(value,key){
           _filters.push(`${key} eq ${value}`);
         });
         _params.filters=_filters.join(" and ");
