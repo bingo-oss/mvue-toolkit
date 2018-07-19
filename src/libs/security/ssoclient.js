@@ -5,9 +5,7 @@
 var Config=require("../../config/config.js");
 var Base64=require("js-base64").Base64;
 var http=require("axios");
-var isEmpty=require('lodash/isEmpty');
-var forEach=require('lodash/forEach');
-var _={isEmpty,forEach};
+var _=require("../tools/lodash_loader").default;
 var qs=require("qs");
 
 /**

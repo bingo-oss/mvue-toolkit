@@ -3,6 +3,7 @@
  * Created by tonyyls on 2016/10/28.
  */
 
+var _=require("./tools/lodash_loader").default;
 
 function getCurPos($textarea){
     var e=$textarea.get(0),pos=e.value.length;

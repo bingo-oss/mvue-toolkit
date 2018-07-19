@@ -4,11 +4,7 @@
 var ssoclient=require("./ssoclient");
 var Cookies=require("js-cookie");
 var store = require('store2');
-var assign=require('lodash/assign');
-var extend=require('lodash/extend');
-var isEqual=require('lodash/isEqual');
-var now=require('lodash/now');
-var _={extend,isEqual,now,assign};
+var _=require("../tools/lodash_loader").default;
 var utils=require('../utils').default;
 
 var sessionKeyPrefix="_session_";

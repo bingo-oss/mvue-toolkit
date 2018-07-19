@@ -1,4 +1,6 @@
 //限定某个文本dom的长度，超过length用...
+var _=require("../tools/lodash_loader").default;
+
 var WordLimit=function($dom,value){
     value.length=value.length||20;
     value.text=value.text||"";

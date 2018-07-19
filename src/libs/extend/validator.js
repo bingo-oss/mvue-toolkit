@@ -1,3 +1,5 @@
+import _ from "../tools/lodash_loader";
+
 var Zh = require("../../i18n/vee_validator/zh_CN.js");
 export  default  function CustomValidator(Vue, Vee) {
   var dictionary = {
