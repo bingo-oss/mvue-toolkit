@@ -2,7 +2,9 @@
  * 系统相关配置信息
  */
 var http=require("axios");
-var _=require("lodash");
+var extend =require('lodash/extend');
+var isEmpty=require('lodash/isEmpty');
+var _={extend,isEmpty};
 var store = require('store2');
 var utils=require('../libs/utils').default;
 
