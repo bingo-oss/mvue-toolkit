@@ -7,6 +7,14 @@ import  urlTemplate from "./url_template";
 import loading from "../tools/loading";
 import modal from "../tools/modal";
 
+import extend from 'lodash/extend';
+import assign from 'lodash/assign';
+import uniqueId from 'lodash/uniqueId';
+import isEmpty from 'lodash/isEmpty';
+import forEach from 'lodash/forEach';
+import merge from 'lodash/merge';
+var _={extend,assign,uniqueId,isEmpty,forEach,merge};
+
 Resource.actions = {
     get: {method: 'GET'},
     save: {method: 'POST'},
