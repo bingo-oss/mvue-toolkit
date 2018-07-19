@@ -7,8 +7,9 @@ var store = require('store2');
 var assign=require('lodash/assign');
 var extend=require('lodash/extend');
 var isEqual=require('lodash/isEqual');
+var isEmpty=require('lodash/isEmpty');
 var now=require('lodash/now');
-var _={extend,isEqual,now,assign};
+var _={extend,isEqual,now,assign,isEmpty};
 var utils=require('../utils').default;
 
 var sessionKeyPrefix="_session_";
