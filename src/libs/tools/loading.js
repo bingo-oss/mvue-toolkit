@@ -33,13 +33,13 @@ export  default {
     showLoading:function () {
         var processed=tryShowLoadingByIView();
         if(!processed){
-            tryShowLoadingByElement();
+            tryShowLoadingByIView();
         }
     },
     hideLoading:function () {
         var processed=tryHideLoadingByIView();
         if(!processed){
-            tryHideLoadingByElement();
+            tryHideLoadingByIView();
         }
     },
     errorLoading:function () {
