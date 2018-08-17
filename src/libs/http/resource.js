@@ -98,10 +98,17 @@ http.interceptors.response.use(function (response) {
         loading.hideLoading();
     }
     return response;
-}, function (error) {
+}, function (error) {``
     if(error.config.uid){
         delete pendingRequests[error.config.uid];
         loading.errorLoading();
+    }
+
+    if (http.onResponseError) {
+      let handled = http.onResponseError(error);
+      if (handled) {
+        return Promise.reject(error);
+      }
     }
 
     var response=error.response;
