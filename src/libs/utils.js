@@ -201,7 +201,8 @@ var utils = {
     },
     leapQueryValueEncode(value){//leap 框架查询值单引号需要转义
         if(value){
-            value=value.replace(/'/ig,"''");
+          value = value + '';
+          value = escape(value);
         }
         return value;
     },

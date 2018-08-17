@@ -104,7 +104,7 @@ http.interceptors.response.use(function (response) {
         loading.errorLoading();
     }
 
-  var response=error.response;
+    var response=error.response;
     if(response.status === 401) {
         session.doLogin(window.location.href);
     }else if(response.status==404){
