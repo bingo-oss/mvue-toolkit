@@ -202,7 +202,9 @@ var utils = {
     leapQueryValueEncode(value){//leap 框架查询值单引号需要转义
         if(value){
           value = value + '';
-          value = escape(value);
+          value = value.replace(/'/g, '%27');
+          value = value.replace(/\(/g, '%28');
+          value = value.replace(/\)/g, '%29');
         }
         return value;
     },
