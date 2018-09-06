@@ -105,6 +105,10 @@ http.interceptors.response.use(function (response) {
     }
 
     var response=error.response;
+    if(!response){
+        console.error("can't get response from :"+error.config.url);
+        return Promise.reject(error);
+    }
     if(response.status === 401) {
         session.doLogin(window.location.href);
     }else if(response.status==404){
