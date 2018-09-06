@@ -98,7 +98,7 @@ http.interceptors.response.use(function (response) {
         loading.hideLoading();
     }
     return response;
-}, function (error) {``
+}, function (error) {
     if(error.config.uid){
         delete pendingRequests[error.config.uid];
         loading.errorLoading();
