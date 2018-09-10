@@ -205,6 +205,8 @@ var utils = {
           value = value.replace(/'/g, '%27');
           value = value.replace(/\(/g, '%28');
           value = value.replace(/\)/g, '%29');
+          value = value.replace(/\[/g, '%5B');
+          value = value.replace(/\]/g, '%5D');
         }
         return value;
     },
