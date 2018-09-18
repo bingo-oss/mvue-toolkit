@@ -146,11 +146,11 @@ function getUserInfo(tokenInfo) {
     return new Promise(function (resolve,reject) {
         http.get(url,{"headers":{"Authorization":"Bearer "+tokenInfo.accessToken}})
             .then(function ({data}) {
-               var user={
+               var user=_.assign({},data,{
                    name:data["name"] || data["username"],
                    userId:data["sub"],
                    anonymous:false
-               };
+               });
                 tokenInfo["user"]=user;
                resolve(user);
             }).catch(function (error) {
