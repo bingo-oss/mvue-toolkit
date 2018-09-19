@@ -33,8 +33,8 @@ function filterRoutesByModuleName(_data, moduleName) {
   }
   return routes;
 }
-//构造模块_moduleName的路由数据
-function toRealRouteData(_data, _moduleName, r) {
+//根据传入的require函数r转换component
+function toRealRouteData(_data, r) {
   var routes = [];
   for (var i = 0; i < _data.length; i++) {
     var item = _data[i];
@@ -69,7 +69,7 @@ function toRealRouteData(_data, _moduleName, r) {
       obj.meta = item.meta;
     }
     if (item.children && item.children.length) {
-      obj.children = toRealRouteData(item.children, _moduleName, r);
+      obj.children = toRealRouteData(item.children, r);
     }
     routes.push(obj);
   }
@@ -82,9 +82,10 @@ function getModuleRoutes(module, routersBaseData,r,routersExData) {
   if (!!moduleRoutersExData) {
     filteredData = mergeData(filteredData, moduleRoutersExData);
   }
-  var routersData = toRealRouteData(filteredData, module, r);
+  var routersData = toRealRouteData(filteredData, r);
   return routersData;
 }
 module.exports = {
-  getModuleRoutes:getModuleRoutes
+  getModuleRoutes:getModuleRoutes,
+  toRealRoutes:toRealRouteData
 };
