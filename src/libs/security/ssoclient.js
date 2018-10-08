@@ -44,7 +44,7 @@ function buildLoginUrlForV3(returnUrl){
   var url=Config.getSSOServerUrl();
   url+="/oauth2/authorize?client_id="+Config.getClientId();
   url+="&redirect_uri="+encodeURIComponent(returnUrl);
-  url+="&logout_uri="+encodeURIComponent(window.location.protocol+"//"+window.location.host+window.location.pathname+"#/ssoclient?logout=1&_inframe=true");
+  url+="&logout_uri="+encodeURIComponent(window.location.protocol+"//"+window.location.host+window.location.pathname+"?_d="+new Date().valueOf()+"#/ssoclient?logout=1&_inframe=true");
   return url;
 }
 
