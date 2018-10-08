@@ -99,6 +99,7 @@ function removeSession() {
   session=_.extend({},anonymousSession);
   store.remove(getSessionKey());
   Cookies.remove(sessionCookieKey,{path:utils.getWebContext()});
+  console.log("session logout!");
 }
 
 function getSessionKey() {
