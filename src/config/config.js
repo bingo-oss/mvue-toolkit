@@ -244,7 +244,6 @@ mergedConfig.getUserApiUrl = function () {
     if (isEmpty(base)) {
         base = this.getGatewayUrl();
     }
-  var base = this.getUumEndpoint();
   return `${base}/user`;
 };
 /**
