@@ -96,7 +96,7 @@ mergedConfig.getSSOVersion = function () {
 mergedConfig.getOAuth2FlowType = function () {
   var key = "oauth2.flow";
   var type = getConfigVal(key);
-  if (!_.isEmpty(type)) {
+  if (!isEmpty(type)) {
       return type;
   }
   //计算type的默认值
@@ -144,7 +144,7 @@ mergedConfig.getApiBaseUrl = function () {
   var url = "";
   var key = "apiBaseUrl";
   url = getConfigVal(key);
-  if (!_.isEmpty(url)) {
+  if (!isEmpty(url)) {
       return url;
   }
   return getConfigVal("service.metad.api.endpoint");
@@ -158,11 +158,10 @@ mergedConfig.getGatewayUrl = function () {
   var url = "";
   var key = "service.gateway.endpoint";
   url = getConfigVal(key);
-  if (!_.isEmpty(url)) {
-      return url;
+  if(isEmpty(url)){
+      url=this.getApiBaseUrl();
   }
-  //未配置时，使用配置的基地址为网关地址
-  url = window.config.baseServerUrl;
+  return url;
 };
 
 /**
@@ -237,10 +236,15 @@ mergedConfig.getLinkWebEndpoint = function () {
 * @returns {*}
 */
 mergedConfig.getUserApiUrl = function () {
+    var url = getConfigVal("userApiUrl");
+    if (!isEmpty(url)) {
+        return url;
+    }
+    var base = this.getUumEndpoint();
+    if (isEmpty(base)) {
+        base = this.getGatewayUrl();
+    }
   var base = this.getUumEndpoint();
-  if(!base){
-    return getConfigVal("userApiUrl");
-  }
   return `${base}/user`;
 };
 /**
@@ -248,11 +252,15 @@ mergedConfig.getUserApiUrl = function () {
 * @returns {*}
 */
 mergedConfig.getOrgApiUrl = function () {
-  var base = this.getUumEndpoint();
-  if(!base){
-    return getConfigVal("orgApiUrl");
-  }
-  return `${base}/organization`;
+    var url = getConfigVal("orgApiUrl");
+    if (!isEmpty(url)) {
+        return url;
+    }
+    var base = this.getUumEndpoint();
+    if (isEmpty(base)) {
+        base = this.getGatewayUrl();
+    }
+    return `${base}/organization`;
 };
 /**
 * 发表api访问地址
@@ -271,5 +279,15 @@ mergedConfig.getLinkEndpoint = function () {
  */
 mergedConfig.getMetadApiEndpoint = function () {
   return getConfigVal("service.metad.api.endpoint");
+}
+
+function isEmpty(obj) {
+    if(obj==null|| typeof(obj)=="undefined"){
+        return true;
+    }
+    if(typeof(obj)=="string" && obj.length==0){
+        return true;
+    }
+    return false;
 }
 module.exports = mergedConfig;

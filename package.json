@@ -1,6 +1,6 @@
 {
   "name": "mvue-toolkit",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "mvue project toolkit components",
   "main": "dist/lib/index.js",
   "scripts": {
