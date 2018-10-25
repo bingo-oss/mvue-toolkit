@@ -28,18 +28,25 @@ return cachedConfig[key];
 };
 
 /**
-* 同步加载服务端的配置
+* 加载服务端的配置
 */
 function loadServerConfig() {
   return new Promise(function(resolve, reject) {
-        http.get(getServerConfigUr()).then(function ({data}) {
+        var configUrl=getServerConfigUrl();
+        if(_.isEmpty(configUrl)){
+            var cachedConfig = _.extend({}, window.config);
+            store.set(cachedConfigKey(),cachedConfig);
+            resolve(cachedConfig);
+            return ;
+        }
+        http.get(getServerConfigUrl()).then(function ({data}) {
             var cachedConfig = _.extend({}, window.config, data);
             store.set(cachedConfigKey(),cachedConfig);
             resolve(cachedConfig);
         }).catch(function (error) {
             console.log(error.message);
             if(error.response.status==404){
-                alert("请确认配置服务器地址是否正确，配置地址如下：" + getServerConfigUr());
+                alert("请确认配置服务器地址是否正确，配置地址如下：" + getServerConfigUrl());
             }
             reject(error);
         });
@@ -50,11 +57,11 @@ function loadServerConfig() {
 * 获取配置服务地址
 * @returns {string}
 */
-function getServerConfigUr() {
+function getServerConfigUrl() {
   if (window.config.configUrl) {
       return window.config.configUrl;
   }
-  return window.config.baseServerUrl + "/config";
+  return null;
 };
 
 var mergedConfig = _.extend({}, window.config);
