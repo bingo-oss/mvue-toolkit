@@ -19,48 +19,37 @@ Resource.actions = {
 };
 
 function opts(action, args, name) {
-    var options = _.assign({}, action), params = {}, body,_options={};
-    if(name==="get"||name==="query"){
-        switch (args.length) {
-            case 2:
+    var options = _.assign({}, action), params = {}, body, _options = {};
+    switch (args.length) {
+        case 3:
+            params = args[0];
+            body = args[1];
+            _options = args[2];
+            break;
+        case 2:
+            if (/^(POST|PUT|PATCH)$/i.test(options.method)) {
+                params = args[0];
+                body = args[1];
+            } else {
                 params = args[0];
                 _options = args[1];
-                break;
-            case 1:
+            }
+            break;
+        case 1:
+            if (/^(POST|PUT|PATCH)$/i.test(options.method)) {
+                body = args[0];
+            } else {
                 params = args[0];
-                break;
-            case 0:
-                break;
-            default:
-                throw 'Expected up to 2 arguments [params, _options], got ' + args.length + ' arguments';
-        }
-    }else{
-        switch (args.length) {
-            case 3:
-                params = args[0];
-                body = args[1];
-                _options = args[2];
-                break;
-            case 2:
-                params = args[0];
-                body = args[1];
-                break;
-            case 1:
-                if (/^(POST|PUT|PATCH)$/i.test(options.method)) {
-                    body = args[0];
-                } else {
-                    params = args[0];
-                }
-                break;
-            case 0:
-                break;
-            default:
-                throw 'Expected up to 3 arguments [params, body,_options], got ' + args.length + ' arguments';
-        }
+            }
+            break;
+        case 0:
+            break;
+        default:
+            throw 'Expected up to 3 arguments [params, body,_options], got ' + args.length + ' arguments';
     }
     options.data = body;
     options.params = _.assign({}, options.params, params);
-    return Object.assign(options,_options);
+    return Object.assign(options, _options);
 }
 
 export const http = axios.create();
@@ -87,6 +76,11 @@ http.interceptors.request.use(function (config) {
     }
     return config;
 }, function (error) {
+    modal.error({
+        title: "系统异常",
+        content: "请求发送异常，请检查网络连接！"
+    });
+    console.error(error);
     // Do something with request error
     return Promise.reject(error);
 });
@@ -104,17 +98,25 @@ http.interceptors.response.use(function (response) {
         loading.errorLoading();
     }
 
-    if (http.onResponseError) {
-      let handled = http.onResponseError(error);
-      if (handled) {
-        return Promise.reject(error);
-      }
+    var errorHandler=error.config["onError"] || http.onResponseError;
+    if (errorHandler) {
+        let handled = errorHandler;
+        if (typeof  errorHandler == "function") {
+            handled = errorHandler(error);
+        }
+        if (handled) {
+            return Promise.reject(error);
+        }
     }
 
     var response=error.response;
     if(!response){
         console.error("can't get response from :"+error.config.url);
-        return Promise.reject(error);
+        modal.error({
+            title: "系统提示",
+            content: "服务器异常，地址："+error.config.url
+        });
+        throw error;
     }
     if(response.status === 401) {
         session.doLogin(window.location.href);
