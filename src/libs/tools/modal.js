@@ -119,5 +119,16 @@ export default {
         if(!process){
             tryShowConfirmByElement(opts);
         }
+    },
+    notice: function (opts,type) {
+        if(type==null || typeof type=="undefined"){
+            type="open";
+        }
+        if(opts!=null && typeof opts=="string"){
+            opts={
+                title:opts
+            };
+        }
+        context.getCurrentVue().$Notice[type](opts);
     }
 }
