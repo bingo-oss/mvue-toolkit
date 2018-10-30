@@ -99,23 +99,24 @@ http.interceptors.response.use(function (response) {
     }
 
     var errorHandler=error.config["onError"] || http.onResponseError;
+    var errorShowType="notice"; //ignore、popup、notice；
     if (errorHandler) {
-        let handled = errorHandler;
+        errorShowType = errorHandler;
         if (typeof  errorHandler == "function") {
-            handled = errorHandler(error);
+            errorShowType = errorHandler(error);
         }
-        if (handled) {
+        if (errorShowType===true || errorShowType==="ignore") {
             return Promise.reject(error);
         }
     }
 
     var response=error.response;
     if(!response){
-        console.error("can't get response from :"+error.config.url);
-        modal.error({
+        showError({
             title: "系统提示",
-            content: "服务器异常，地址："+error.config.url
-        });
+            content: "服务器异常，地址："+error.config.url,
+            duration:10
+        },errorShowType);
         throw error;
     }
     if(response.status === 401) {
@@ -132,31 +133,45 @@ http.interceptors.response.use(function (response) {
         }
         if(response.status==403){
             message="您没有此操作权限";
-            modal.error({
+            showError({
                 title: "系统提示",
-                content: message
-            });
+                content: message,
+                duration:10
+            },errorShowType);
         }else if(response.status==400){
-            modal.warning({
+            showError({
                 title: "系统提示",
-                content: message
-            });
+                content: message,
+                duration:10
+            },errorShowType);
         }else{
-            modal.error({
+            showError({
                 title: "系统提示",
-                content: "服务器异常:"+message
-            });
+                content: "服务器异常:"+message,
+                duration:10
+            },errorShowType);
         }
     }else if(response.status == 0){
         console.error(response.data);
-        modal.error({
+        showError({
             title: "系统提示",
-            content: "请求出现异常，请检查网络连接！"
-        });
+            content: "请求出现异常，请检查网络连接！",
+            duration:10
+        },errorShowType);
     }
     return Promise.reject(error);
 });
 
+function showError(error,errorShowType) {
+    if(errorShowType=="popup"){
+        modal.error(error);
+    }else{
+        if(!error.desc && error.content){
+            error["desc"]=error.content;
+        }
+        modal.notice(error,"warning");
+    }
+}
 
 function ResourceBase(){
     return {
