@@ -27,7 +27,7 @@ function opts(action, args, name) {
             _options = args[2];
             break;
         case 2:
-            if (/^(POST|PUT|PATCH)$/i.test(options.method)) {
+            if (/^(POST|PUT|PATCH|DELETE)$/i.test(options.method)) {
                 params = args[0];
                 body = args[1];
             } else {
@@ -36,7 +36,7 @@ function opts(action, args, name) {
             }
             break;
         case 1:
-            if (/^(POST|PUT|PATCH)$/i.test(options.method)) {
+            if (/^(POST|PUT|PATCH|DELETE)$/i.test(options.method)) {
                 body = args[0];
             } else {
                 params = args[0];
