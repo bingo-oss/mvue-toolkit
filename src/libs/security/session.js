@@ -74,17 +74,28 @@ function isLogin() {
   return true;
 }
 
-function signIn(tokenInfo){
-  session.token=tokenInfo;
-  session.user=tokenInfo.user ||_.assign({},anonymousSession.user);
-  session.user["anonymous"]=false;
-  session.loginTime=_.now().valueOf();
-  session.expires=session.loginTime+tokenInfo.expiresIn*1000-60000;
-  session.sessionId="session_id_"+session.loginTime;
-  Cookies.set(sessionCookieKey,session.sessionId,{
-    path:utils.getWebContext()
-  });
-  store.set(getSessionKey(),session);
+function signIn(tokenInfo) {
+   //其它窗口已经登录，并且cookie值与store中的数据保存一致，丢弃该授权码，使用本地数据
+    var sessionId=Cookies.get(sessionCookieKey);
+    if (sessionId && store.has(getSessionKey())) {
+        var storeSession = store.get(getSessionKey());
+        if(sessionId==storeSession.sessionId){
+          session=storeSession;
+          return session;
+        }
+    }
+    //登录
+    session.token = tokenInfo;
+    session.user = tokenInfo.user || _.assign({}, anonymousSession.user);
+    session.user["anonymous"] = false;
+    session.loginTime = _.now().valueOf();
+    session.expires = session.loginTime + tokenInfo.expiresIn * 1000 - 60000;
+    session.sessionId = "session_id_" + session.loginTime;
+    Cookies.set(sessionCookieKey, session.sessionId, {
+        path: utils.getWebContext()
+    });
+    store.set(getSessionKey(), session);
+    return session;
 }
 
 function signOut(returnUrl) {
