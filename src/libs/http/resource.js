@@ -36,7 +36,7 @@ function opts(action, args, name) {
             }
             break;
         case 1:
-            if (/^(POST|PUT|PATCH|DELETE)$/i.test(options.method)) {
+            if (/^(POST|PUT|PATCH)$/i.test(options.method)) {
                 body = args[0];
             } else {
                 params = args[0];
