@@ -234,17 +234,17 @@ var utils = {
      * @param {*} btn 操作对象
      */
     hasDataPerm(item,btn){
-        let userPermVal=item[Utils.dataPermField];
+        let userPermVal=item[utils.dataPermField];
         //如果数据没定义任何权限，那就不控制权限
         if(!userPermVal){
             return true;
         }
-        let operationPermVal=btn[Utils.dataPermField];
+        let operationPermVal=btn[utils.dataPermField];
         //如果未设置权限，则默认没有权限
         if(!operationPermVal){
             return false;
         }
-        return Utils.hasPerm(userPermVal,operationPermVal);
+        return utils.hasPerm(userPermVal,operationPermVal);
     },
     dataPermField:"permVal",
     permValues:{
@@ -267,7 +267,7 @@ var utils = {
     },
     ignoreSpecialQuery(query){
         let _query=_.cloneDeep(query);
-        _.forIn(Utils.queryKeys,function(key){
+        _.forIn(utils.queryKeys,function(key){
             if(_.has(_query,key)){
                 delete _query[key];
             }
