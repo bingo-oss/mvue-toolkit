@@ -7,8 +7,10 @@ import  utils from './libs/utils';
 import  router from './libs/extend/router';
 import  directives from './libs/extend/directives';
 import context from './libs/extend/context';
+import moduleManager from './libs/module-manager';
 
 const mvueToolkit={
+    moduleManager,
     session: session,
     ssoclient: ssoclient,
     config:config,
@@ -36,4 +38,3 @@ const mvueToolkit={
 }
 
 export default mvueToolkit;
-
