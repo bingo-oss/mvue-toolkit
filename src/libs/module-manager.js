@@ -17,5 +17,6 @@ function initAfterAppStarted(appCtx){
 export default {
     add,
     initAfterAppCtxCreated,
-    initAfterAppStarted
+    initAfterAppStarted,
+    mods
 }
