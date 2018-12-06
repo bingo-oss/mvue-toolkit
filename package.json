@@ -1,6 +1,6 @@
 {
   "name": "mvue-toolkit",
-  "version": "1.0.14",
+  "version": "1.0.16",
   "description": "mvue project toolkit components",
   "main": "dist/lib/index.js",
   "scripts": {
@@ -13,6 +13,7 @@
     "type": "git",
     "url": "https://github.com/bingo-oss/mvue-toolkit"
   },
+  "keywords": ["mvue","mvue-toolkit","bingo"],
   "dependencies": {
     "js-base64": "^2.4.0",
     "js-cookie": "^2.2.0",
