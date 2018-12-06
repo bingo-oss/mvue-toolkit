@@ -58,6 +58,8 @@ var pendingRequests={};
 
 
 http.interceptors.request.use(function (config) {
+    config.headers['Cache-Control']="no-cache";
+    config.headers["Pragma"]="no-cache";
     var token = session.getToken();
     if (token) {
         config.headers['Authorization']='Bearer '+ token;
