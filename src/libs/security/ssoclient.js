@@ -142,7 +142,7 @@ function onImplictFlow(callback){
 }
 
 function getUserInfo(tokenInfo) {
-    var url=Config.getSSOServerUrl()+"/oauth2/userinfo";
+    var url=Config.getSSOServerUrl()+"/oauth2/userinfo?_="+new Date().getTime();
     return new Promise(function (resolve,reject) {
         http.get(url,{"headers":{"Authorization":"Bearer "+tokenInfo.accessToken}})
             .then(function ({data}) {
