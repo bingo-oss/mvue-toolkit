@@ -1,3 +1,4 @@
+var _=require("../tools/lodash_loader").default;
 //将arr2的路由基础数据合并到arr1中
 function mergeData(arr1, arr2) {
   for (var i = 0; i < arr2.length; i++) {
@@ -45,12 +46,15 @@ function toRealRouteData(_data, r) {
     obj.path = item.path||item.route_path;
     //这个地方引用组件通过动态的r函数require，由各模块自己提供
     if (item.component) {
-      try{
-          var file=r(item.component);
-          obj.component = r(item.component);
-      }catch (ex){
-          console.log("fail to load :"+item.component);
-          continue;
+      if(_.isString(item.component)){
+        try{
+            obj.component = r(item.component);
+        }catch (ex){
+            console.log("fail to load :"+item.component);
+            continue;
+        }
+      }else{
+        obj.component=item.component;
       }
     }
     if (item.alias) {
