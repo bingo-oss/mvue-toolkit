@@ -127,14 +127,43 @@ mergedConfig.getLoginUrl = function () {
   var key = "tplLoginUrl";
   return getConfigVal(key);
 };
+
 /**
 *
 * @returns {*}
 */
-mergedConfig.getLoginUrl = function () {
-  var key = "tplLoginUrl";
+mergedConfig.getLocalLoginUrl = function () {
+  var key = "loginUrl";
   return getConfigVal(key);
 };
+
+mergedConfig.getLocalLogoutUrl = function () {
+    var key = "logoutUrl";
+    return getConfigVal(key);
+};
+
+/**
+ * 判断是否启用本地登录，oauth2.ssoServerUrl为空，并且loginUrl不为空，启用本地登录
+ * @returns {boolean}
+ */
+mergedConfig.isLocalLogin=function () {
+    var loginLoginUrl=this.getLocalLoginUrl();
+    var ssoServerUrl=this.getSSOServerUrl();
+    if(_.isEmpty(ssoServerUrl) && !_.isEmpty(loginLoginUrl)){
+        return true;
+    }
+    return false;
+}
+
+/**
+ *
+ * @returns {*}
+ */
+mergedConfig.getLocalUserInfoUrl = function () {
+    var key = "userInfoUrl";
+    return getConfigVal(key);
+};
+
 /**
 * 获取服务器端代理验证授权码（accessCode）的地址
 * @returns {*}

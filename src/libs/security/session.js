@@ -6,28 +6,35 @@ var Cookies=require("js-cookie");
 var store = require('store2');
 var _=require("../tools/lodash_loader").default;
 var utils=require('../utils').default;
+var AES = require("crypto-js/aes");
+var encUTF8 = require("crypto-js/enc-utf8");
+
 
 var sessionKeyPrefix="_session_";
 var sessionCookieKey="m_vue_session_id";
-var anonymousSession={
-  sessionId:null,
-  loginTime:null,
-  expires:0,
-  token:{
-    accessToken:null,
-    refreshToken:null,
-    expiresIn:0,
-  },
-  user:{
-    anonymous:true,
-    name:"匿名用户",
-    userId:""
-  }
+var anonymousSession= {
+    sessionId: null,
+    loginTime: null,
+    expires: 0,
+    token: {
+        mode:"",
+        accessToken: null,
+        refreshToken: null,
+        expiresIn: 0,
+    },
+    user: {
+        anonymous: true,
+        name: "匿名用户",
+        userId: ""
+    }
 };
 var session=_.extend({},anonymousSession);
 
 if(store.has(getSessionKey())){
-  session=store.get(getSessionKey());
+   var storedSession=getStoredSession();
+   if(storedSession){
+       session=storedSession;
+   }
 }
 
 function createLoginRouter(returnUrl){
@@ -77,25 +84,41 @@ function isLogin() {
 function signIn(tokenInfo) {
    //其它窗口已经登录，并且cookie值与store中的数据保存一致，丢弃该授权码，使用本地数据
     var sessionId=Cookies.get(sessionCookieKey);
-    if (sessionId && store.has(getSessionKey())) {
-        var storeSession = store.get(getSessionKey());
-        if(sessionId==storeSession.sessionId){
-          session=storeSession;
-          return session;
-        }
+    var storeSession = getStoredSession();
+    if (storeSession && storeSession.sessionId==sessionId) {
+        session = storeSession;
+        return session;
     }
     //登录
     session.token = tokenInfo;
     session.user = tokenInfo.user || _.assign({}, anonymousSession.user);
     session.user["anonymous"] = false;
     session.loginTime = _.now().valueOf();
-    session.expires = session.loginTime + tokenInfo.expiresIn * 1000 - 60000;
     session.sessionId = "session_id_" + session.loginTime;
+    if(tokenInfo.expiresIn){
+        session.expires = session.loginTime + tokenInfo.expiresIn * 1000 - 60000;
+    }
     Cookies.set(sessionCookieKey, session.sessionId, {
         path: utils.getWebContext()
     });
-    store.set(getSessionKey(), session);
+
+    var crypto=AES.encrypt(JSON.stringify(session),session.sessionId);
+    store.set(getSessionKey(), crypto.toString());
     return session;
+}
+
+function getStoredSession() {
+    var sessionId=Cookies.get(sessionCookieKey);
+    if(!sessionId){
+      return null;
+    }
+    try{
+        var decrypt=AES.decrypt(store.get(getSessionKey()),sessionId);
+        session=JSON.parse(decrypt.toString(encUTF8));
+        return session;
+    }catch(ex){
+      return null;
+    }
 }
 
 function signOut(returnUrl) {
@@ -117,55 +140,58 @@ function getSessionKey() {
   return sessionKeyPrefix+utils.getWebContext();
 }
 
-module.exports={
-  getToken:function(){
-    if(!isLogin()){
-      return null;
+module.exports= {
+    isLogin: function () {
+        return isLogin();
+    },
+    getToken: function () {
+        if (this.hasToken()) {
+            return session.token.accessToken;
+        }
+        return null;
+    },
+    hasToken: function () {
+        if (isLogin() && session.token.accessToken) {
+            return true;
+        }
+        return false;
+    },
+    doSignIn: function (tokenInfo) {
+        signIn(tokenInfo);
+    },
+    doLogout: function (returnUrl) {
+        signOut(returnUrl);
+    },
+    doLogin: function (returnUrl) {
+        ssoclient.gotoLogin(returnUrl);
+    },
+    getCurrentUser: function () {
+        return session.user;
+    },
+    doFilter: function (to, from, next) {
+        //因为to.matched会从父到子放置所有匹配的路由，所以从最后一个路由向上判断是否定义了requiresAuth就可以确定了
+        let len = to.matched.length;
+        let requiresAuth = false;
+        for (let i = len - 1; i >= 0; --i) {
+            let m = to.matched[i];
+            if (m.meta.requiresAuth) {//路由配置指定了需要验证
+                requiresAuth = true;
+                break;
+            } else if (m.meta.requiresAuth === false) {//路由配置指定了匿名
+                requiresAuth = false;
+                break;
+            }
+        }
+        if (requiresAuth) {
+            if (this.isLogin()) {  // 通过vuex state获取当前的token是否存在
+                next();
+            } else {
+                //中转
+                ssoclient.gotoLogin(to.fullPath);
+            }
+        } else {
+            next();
+        }
     }
-    return session.token.accessToken;
-  },
-  hasToken:function () {
-    if(!isLogin()|| _.isEmpty(session.token.accessToken)){
-      return false;
-    }
-    return true;
-  },
-  doSignIn:function (tokenInfo) {
-    signIn(tokenInfo);
-  },
-  doLogout:function (returnUrl) {
-    signOut(returnUrl);
-  },
-  doLogin:function (returnUrl) {
-    ssoclient.gotoLogin(returnUrl);
-  },
-  getCurrentUser:function(){
-    return session.user;
-  },
-  doFilter:function(to,from,next){
-    //因为to.matched会从父到子放置所有匹配的路由，所以从最后一个路由向上判断是否定义了requiresAuth就可以确定了
-    let len=to.matched.length;
-    let requiresAuth=false;
-    for(let i=len-1;i>=0;--i){
-      let m=to.matched[i];
-      if(m.meta.requiresAuth){//路由配置指定了需要验证
-        requiresAuth=true;
-        break;
-      }else if(m.meta.requiresAuth===false){//路由配置指定了匿名
-        requiresAuth=false;
-        break;
-      }
-    }
-    if(requiresAuth){
-      if (this.hasToken()) {  // 通过vuex state获取当前的token是否存在
-        next();
-      }else {
-        //中转
-        ssoclient.gotoLogin(to.fullPath);
-      }
-    }else{
-      next();
-    }
-  }
 };
 

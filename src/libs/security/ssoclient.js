@@ -12,27 +12,36 @@ var qs=require("qs");
  * 跳转到sso登录页面
  */
 function gotoLogin(returnUrl) {
-  var ssoclientUrl=window.location.href;
-  if(ssoclientUrl.indexOf("#")>0){
-    ssoclientUrl=ssoclientUrl=ssoclientUrl.substring(0,ssoclientUrl.indexOf("#"));
-  }
-  ssoclientUrl+="#/ssoclient?returnUrl="+encodeURIComponent(returnUrl);
-
-  var url="";
-  if(Config.getSSOVersion()=="v2"){
-    url=buildLoginUrlForV2(ssoclientUrl);
-  }else{
-    url=buildLoginUrlForV3(ssoclientUrl);
-    if(Config.getOAuth2FlowType()=="implicit"){
-      url+="&response_type=token";
-    }else if(Config.getOAuth2FlowType()=="accessCode"){
-      url+="&response_type=code";
-    }else{
-      url+="&response_type="+encodeURIComponent("code id_token");
+    var ssoclientUrl = window.location.href;
+    if (ssoclientUrl.indexOf("#") > 0) {
+        ssoclientUrl = ssoclientUrl = ssoclientUrl.substring(0, ssoclientUrl.indexOf("#"));
     }
-    window.location=url;
-  }
+    ssoclientUrl += "#/ssoclient?returnUrl=" + encodeURIComponent(returnUrl);
+    var url = "";
+    if (Config.isLocalLogin()) {
+        url = buildLoginUrlForLocal(ssoclientUrl);
+    } else if (Config.getSSOVersion() == "v2") {
+        url = buildLoginUrlForV2(ssoclientUrl);
+    } else {
+        url = buildLoginUrlForV3(ssoclientUrl);
+        if (Config.getOAuth2FlowType() == "implicit") {
+            url += "&response_type=token";
+        } else if (Config.getOAuth2FlowType() == "accessCode") {
+            url += "&response_type=code";
+        } else {
+            url += "&response_type=" + encodeURIComponent("code id_token");
+        }
+
+    }
+    window.location = url;
 }
+
+function buildLoginUrlForLocal(returnUrl) {
+    var url=Config.getLocalLoginUrl();
+    return url=`${url}?return_url=${encodeURIComponent(returnUrl)}`;
+    return url;
+}
+
 
 function buildLoginUrlForV2(returnUrl){
   var url=Config.getSSOServerUrl();
@@ -51,11 +60,40 @@ function buildLoginUrlForV3(returnUrl){
 /**
  * 处理sso回调
  */
-function onSSOCallback(callback){
-  if(Config.getSSOVersion()=="v2"){
-    return processCallbackForV2(callback);
-  }
-  return processCallbackForV3(callback);
+function onSSOCallback(callback) {
+    if (Config.isLocalLogin()) {
+        return processCallbackLocal(callback);
+    }
+    if (Config.getSSOVersion() == "v2") {
+        return processCallbackForV2(callback);
+    }
+    return processCallbackForV3(callback);
+}
+
+/**
+ * 本地登录成功后的处理
+ * @param callback
+ * @returns {Promise<any>}
+ */
+function processCallbackLocal(callback) {
+    var params = resolveParams(window.location.href) || {};
+    var url = Config.getLocalUserInfoUrl() + "?_=" + new Date().getTime();
+    return new Promise(function (resolve, reject) {
+        http.get(url).then(function ({data}) {
+            var tokenInfo = {
+                user: {},
+                mode:"local"
+            };
+            var user = _.assign({}, data, {anonymous: false});
+            tokenInfo["user"] = user;
+            if (callback) {
+                callback(tokenInfo);
+            }
+            resolve(tokenInfo);
+        }).catch(function (error) {
+            reject(null);
+        });
+    });
 }
 
 /**
@@ -101,7 +139,8 @@ function processCallbackForV2(callback) {
                 user:{
                     name: respMap["identity"],
                     userId: respMap["identity"]
-                }
+                },
+                mode:"v2"
             };
             if (callback) {
                 callback(tokenInfo);
@@ -132,7 +171,11 @@ function onImplictFlow(callback){
   var tokenInfo={
       accessToken:params["access_token"],
       expiresIn:params["expires_in"],
-      state:params["state"]
+      state:params["state"],
+      mode:"v3",
+      modeMore:{
+          flowType:"implicit"
+      }
   };
     getUserInfo(tokenInfo).then(function (userInfo) {
         if(callback){
@@ -171,7 +214,11 @@ function onAccessCodeFlow(callback) {
       accessToken:token["access_token"],
       expiresIn:token["expires_in"],
       state:token["state"],
-      refreshToken:token["refresh_token"]
+      refreshToken:token["refresh_token"],
+        mode:"v3",
+        modeMore:{
+            flowType:"accessCode"
+        }
     };
     getUserInfo(tokenInfo).then(function (userInfo) {
           if(callback){
@@ -226,27 +273,32 @@ function getClientAuth() {
 }
 
 function ssoLogout(returnUrl) {
-  var url=Config.getSSOServerUrl();
-  if(Config.getSSOVersion()=="v2"){
-    url+="/v2?openid.mode=logout";
-    url+="&openid.return_to="+encodeURIComponent(returnUrl);
-  }else{
-    url+="/oauth2/logout?post_logout_redirect_uri="+encodeURIComponent(returnUrl);
-  }
-  window.location=url;
+    var url = "";
+    if (Config.isLocalLogin()) {
+        url = Config.getLocalLogoutUrl() + "?return_url=" + encodeURIComponent(returnUrl);
+    } else {
+        url = Config.getSSOServerUrl();
+        if (Config.getSSOVersion() == "v2") {
+            url += "/v2?openid.mode=logout";
+            url += "&openid.return_to=" + encodeURIComponent(returnUrl);
+        } else {
+            url += "/oauth2/logout?post_logout_redirect_uri=" + encodeURIComponent(returnUrl);
+        }
+    }
+    window.location = url;
 }
 
 
-module.exports={
-  gotoLogin:function(returnUrl)  {
-    gotoLogin(returnUrl);
-  },
-  onSSOCallback:function (callback) {
-    onSSOCallback(callback);
-  },
-  ssoLogout:function (returnUrl) {
-    ssoLogout(returnUrl);
-  }
+module.exports= {
+    gotoLogin: function (returnUrl) {
+        gotoLogin(returnUrl);
+    },
+    onSSOCallback: function (callback) {
+        onSSOCallback(callback);
+    },
+    ssoLogout: function (returnUrl) {
+        ssoLogout(returnUrl);
+    }
 }
 
 
