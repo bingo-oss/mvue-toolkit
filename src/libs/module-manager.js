@@ -33,6 +33,8 @@ function addAsync(modName,mod,appCtx,homeBase,pageIndex){
             });
             modRoutes.children=mod.pages.routes;
             appCtx.getRouter().addRoutes([modRoutes]);
+            //更新vuex中存储的页面配置
+            appCtx.getStore&&appCtx.getStore().commit("core/setAutoPageConfs",appCtx.getAutoPageConfs());
         }
 
         mod.initAfterAppCtxCreated && 
