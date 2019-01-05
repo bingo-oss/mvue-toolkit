@@ -29,6 +29,10 @@ var anonymousSession= {
     }
 };
 var session=_.extend({},anonymousSession);
+var events={
+    onSignIn:[],
+    onSignOut:[]
+}
 
 if(store.has(getSessionKey())){
    var storedSession=getStoredSession();
@@ -104,6 +108,9 @@ function signIn(tokenInfo) {
 
     var crypto=AES.encrypt(JSON.stringify(session),session.sessionId);
     store.set(getSessionKey(), crypto.toString());
+    _.forEach(events.onSignIn,(func)=>{
+        func(session);
+    });
     return session;
 }
 
@@ -122,11 +129,14 @@ function getStoredSession() {
 }
 
 function signOut(returnUrl) {
-  removeSession();
-  if(_.isEmpty(returnUrl)){
-    returnUrl=window.location.href;
-  }
-  ssoclient.ssoLogout(returnUrl);
+    removeSession();
+    if (_.isEmpty(returnUrl)) {
+        returnUrl = window.location.href;
+    }
+    _.forEach(events.onSignOut, (func) => {
+        func(returnUrl);
+    });
+    ssoclient.ssoLogout(returnUrl);
 }
 
 function removeSession() {
@@ -192,6 +202,12 @@ module.exports= {
         } else {
             next();
         }
+    },
+    onSignIn:function (func) {
+        events.onSignIn.push(func);
+    },
+    onSignOut:function (func) {
+        events.onSignOut.push(func);
     }
 };
 
