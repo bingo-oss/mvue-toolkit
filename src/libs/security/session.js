@@ -85,7 +85,7 @@ function isLogin() {
   return true;
 }
 
-function signIn(tokenInfo) {
+async function signIn(tokenInfo) {
    //其它窗口已经登录，并且cookie值与store中的数据保存一致，丢弃该授权码，使用本地数据
     var sessionId=Cookies.get(sessionCookieKey);
     var storeSession = getStoredSession();
@@ -108,9 +108,10 @@ function signIn(tokenInfo) {
 
     var crypto=AES.encrypt(JSON.stringify(session),session.sessionId);
     store.set(getSessionKey(), crypto.toString());
-    _.forEach(events.onSignIn,(func)=>{
-        func(session);
-    });
+    for(var i=0;i<events.onSignIn.length;i++){
+        var func=events.onSignIn[i];
+        await func(session);
+    }
     return session;
 }
 
@@ -128,14 +129,15 @@ function getStoredSession() {
     }
 }
 
-function signOut(returnUrl) {
+async function signOut(returnUrl) {
     removeSession();
     if (_.isEmpty(returnUrl)) {
         returnUrl = window.location.href;
     }
-    _.forEach(events.onSignOut, (func) => {
-        func(returnUrl);
-    });
+    for(var i=0;i<events.onSignOut.length;i++){
+        var func=events.onSignOut[i];
+        await func(session);
+    }
     ssoclient.ssoLogout(returnUrl);
 }
 
@@ -166,11 +168,11 @@ module.exports= {
         }
         return false;
     },
-    doSignIn: function (tokenInfo) {
-        signIn(tokenInfo);
+    doSignIn: async function (tokenInfo) {
+       return signIn(tokenInfo);
     },
-    doLogout: function (returnUrl) {
-        signOut(returnUrl);
+    doLogout:async function (returnUrl) {
+       return signOut(returnUrl);
     },
     doLogin: function (returnUrl) {
         ssoclient.gotoLogin(returnUrl);
