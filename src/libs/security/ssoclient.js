@@ -1,11 +1,11 @@
 /**
  * SSO客户端
  */
+import _ from "../tools/lodash_loader";
 
 var Config=require("../../config/config.js");
 var Base64=require("js-base64").Base64;
 var http=require("axios");
-var _=require("../tools/lodash_loader").default;
 var qs=require("qs");
 
 /**

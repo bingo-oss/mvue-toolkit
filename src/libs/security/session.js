@@ -1,13 +1,15 @@
 /**
  * 当前会话
  */
-var ssoclient=require("./ssoclient");
+import ssoclient from './ssoclient';
+
 var Cookies=require("js-cookie");
 var store = require('store2');
 var _=require("../tools/lodash_loader").default;
 var utils=require('../utils').default;
 var AES = require("crypto-js/aes");
 var encUTF8 = require("crypto-js/enc-utf8");
+
 
 
 var sessionKeyPrefix="_session_";
