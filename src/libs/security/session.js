@@ -152,7 +152,7 @@ function getSessionKey() {
   return sessionKeyPrefix+utils.getWebContext();
 }
 
-module.exports= {
+export default {
     isLogin: function () {
         return isLogin();
     },

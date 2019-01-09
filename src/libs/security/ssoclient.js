@@ -289,7 +289,7 @@ function ssoLogout(returnUrl) {
 }
 
 
-module.exports= {
+export default {
     gotoLogin: function (returnUrl) {
         gotoLogin(returnUrl);
     },

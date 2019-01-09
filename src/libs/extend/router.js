@@ -89,7 +89,7 @@ function getModuleRoutes(module, routersBaseData,r,routersExData) {
   var routersData = toRealRouteData(filteredData, r);
   return routersData;
 }
-module.exports = {
+export default {
   getModuleRoutes:getModuleRoutes,
   toRealRoutes:toRealRouteData
 };
