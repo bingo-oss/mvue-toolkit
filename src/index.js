@@ -8,6 +8,7 @@ import  router from './libs/extend/router';
 import  directives from './libs/extend/directives';
 import context from './libs/extend/context';
 import moduleManager from './libs/module-manager';
+import  urlTemplate from "./libs/http/url_template";
 
 const mvueToolkit={
     moduleManager,
@@ -15,6 +16,7 @@ const mvueToolkit={
     ssoclient: ssoclient,
     config:config,
     resource: resource,
+    urlTemplate,
     http,
     router:router,
     utils:utils,
