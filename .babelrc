@@ -4,12 +4,13 @@
       "targets": {
         "browsers":["ie > 10","Chrome > 46"]
       },
-      "modules": false
+      "modules": "false",
+      "loose":true,
+      "forceAllTransforms":true
     }]
   ],
   "plugins": ["@babel/plugin-transform-runtime"],
-  "comments": false,
-  "sourceType":"unambiguous",
+  "comments": true,
   "env": {
     "test": {
       "presets": ["@babel/preset-env"],

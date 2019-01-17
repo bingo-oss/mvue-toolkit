@@ -73,10 +73,17 @@ function isAsyncModLoaded(routePath){
     }
     return false;
 }
+function addRouterInterceptor(router,opts){
+    mods.forEach(mod => {
+        mod.addRouterInterceptor && 
+        mod.addRouterInterceptor(router,opts);
+    });
+}
 export default {
     add,
     initAfterAppCtxCreated,
     initAfterAppStarted,
+    addRouterInterceptor,
     mods,
     addSync,
     addAsync,
