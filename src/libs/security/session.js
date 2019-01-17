@@ -177,6 +177,7 @@ export default {
        return signOut(returnUrl);
     },
     doLogin: function (returnUrl) {
+        store.remove(getSessionKey());
         ssoclient.gotoLogin(returnUrl);
     },
     getCurrentUser: function () {
