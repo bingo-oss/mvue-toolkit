@@ -1,8 +1,8 @@
 {
   "name": "mvue-toolkit",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "description": "mvue project toolkit components",
-  "main": "dis/lib/index.js",
+  "main": "dist/lib/index.js",
   "scripts": {
     "build": "node build/build-lib.js",
     "prepublish": "npm run build"
