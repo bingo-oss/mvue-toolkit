@@ -1,6 +1,6 @@
 {
   "name": "mvue-toolkit",
-  "version": "1.0.26",
+  "version": "1.0.28",
   "description": "mvue project toolkit components",
   "main": "dist/lib/index.js",
   "scripts": {
@@ -25,7 +25,8 @@
     "js-cookie": "^2.2.0",
     "qs": "^6.5.2",
     "shelljs": "^0.8.3",
-    "store2": "^2.5.9"
+    "store2": "^2.5.9",
+    "path-to-regexp": "1.7.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",

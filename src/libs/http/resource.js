@@ -7,6 +7,7 @@ import  urlTemplate from "./url_template";
 import loading from "../tools/loading";
 import modal from "../tools/modal";
 import _ from "../tools/lodash_loader"
+import pathToRegexp from "path-to-regexp";
 
 
 Resource.actions = {
@@ -191,15 +192,26 @@ function ResourceBase(){
                 return _.extend(this,opt);
             },
             request:function (httpConfig) {
-                var baseUrl=this.baseUrl || defaultHttpOption.baseUrl;
-                if(!_.isEmpty(baseUrl)){
-                    httpConfig["baseURL"]=baseUrl;
+                var baseUrl = this.baseUrl || defaultHttpOption.baseUrl;
+                if (!_.isEmpty(baseUrl)) {
+                    httpConfig["baseURL"] = baseUrl;
                 }
-                let parsedUrl=urlTemplate.parse(httpConfig.url);
-                var actionUrl=parsedUrl.expand(httpConfig.params);
-                _.forIn(parsedUrl.vars,function (item) {
-                    delete httpConfig.params[item];
-                })
+                var actionUrl = httpConfig.url;
+                if (actionUrl.indexOf("{") > 0) {
+                    let parsedUrl = urlTemplate.parse(httpConfig.url);
+                    actionUrl = parsedUrl.expand(httpConfig.params);
+                    _.forIn(parsedUrl.vars, function (item) {
+                        delete httpConfig.params[item];
+                    })
+                }else{
+                    var tokens=pathToRegexp.parse(actionUrl);
+                    actionUrl=pathToRegexp.compile(actionUrl)(httpConfig.params);
+                    _.forEach(tokens,token=>{
+                        if(token.name){
+                            delete httpConfig.params[token.name];
+                        }
+                    });
+                }
                 httpConfig.url=actionUrl;
                 return http.request(httpConfig);
             }
@@ -225,7 +237,12 @@ export default function Resource(url, actions,_options) {
         resource[name] = function () {
             var args = Array.prototype.slice.call(arguments);
             let httpConfig = opts(action,args,name);
-            return resource.request(httpConfig);
+            try{
+                return resource.request(httpConfig);
+            }catch (ex){
+                console.log(ex);
+                throw ex;
+            }
         };
     });
     return resource;
