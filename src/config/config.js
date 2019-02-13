@@ -8,7 +8,7 @@ var utils=require('../libs/utils').default;
 
 
 if (!window.config) {
-  alert("全局配置文件未引入，请检查项目代码");
+  console.error("全局配置文件未引入，请检查项目代码");
 }
 function cachedConfigKey(){
   return "_cachedConfig"+utils.getWebContext();
@@ -21,7 +21,7 @@ function cachedConfigKey(){
 function getConfigVal(key) {
   var cachedConfig=store.get(cachedConfigKey());
   if (cachedConfig == null) {
-      alert("配置未正确加载，请通过loadServerConfig加载配置。");
+      console.error("配置未正确加载，请通过loadServerConfig加载配置。");
       return;
   }
 return cachedConfig[key];
@@ -46,7 +46,7 @@ function loadServerConfig() {
         }).catch(function (error) {
             console.log(error.message);
             if(error.response.status==404){
-                alert("请确认配置服务器地址是否正确，配置地址如下：" + getServerConfigUrl());
+                console.error("请确认配置服务器地址是否正确，配置地址如下：" + getServerConfigUrl());
             }
             reject(error);
         });

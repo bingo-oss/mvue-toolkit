@@ -128,7 +128,7 @@ function processCallbackForV2(callback) {
                 respMap[entry[0]] = entry[1];
             })
             if (respMap["mode"] != "ok") {
-                alert("ticket " + ticket + " 无效，错误信息：" + respMap["error"]);
+                console.error("ticket " + ticket + " 无效，错误信息：" + respMap["error"]);
                 return;
             }
             var tokenInfo = {
