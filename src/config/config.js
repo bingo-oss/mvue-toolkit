@@ -40,6 +40,9 @@ function loadServerConfig() {
             return ;
         }
         http.get(getServerConfigUrl()).then(function ({data}) {
+            if(window.config.apiBaseUrl){
+                delete data["apiBaseUrl"];
+            }
             var cachedConfig = _.extend({}, window.config, data);
             store.set(cachedConfigKey(),cachedConfig);
             resolve(cachedConfig);
@@ -60,6 +63,9 @@ function loadServerConfig() {
 function getServerConfigUrl() {
   if (window.config.configUrl) {
       return window.config.configUrl;
+  }
+  if(window.config.apiBaseUrl){
+      return window.config.apiBaseUrl+"/web.json";
   }
   return null;
 };
