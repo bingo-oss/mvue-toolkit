@@ -280,6 +280,19 @@ var utils = {
             webContext=webContext.substring(0,webContext.lastIndexOf('/'));
         }
         return webContext;
+    },
+    visitTree(tree,process,parent,indexOrKey) {
+        if (_.isArray(tree)) {
+            _.forEach(tree, (item, index) => {
+                this.visitTree(item, process, parent, index);
+            });
+        }
+        process(tree, parent, indexOrKey);
+        if (tree.children) {
+            _.forEach(tree.children, (item, key) => {
+                this.visitTree(item, process, tree, key);
+            });
+        }
     }
 };
 

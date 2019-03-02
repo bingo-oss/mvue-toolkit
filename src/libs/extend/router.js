@@ -1,4 +1,6 @@
-var _=require("../tools/lodash_loader").default;
+import Config from "../../config/config.js";
+import _ from "../tools/lodash_loader";
+import Utils from "../utils";
 //将arr2的路由基础数据合并到arr1中
 function mergeData(arr1, arr2) {
   for (var i = 0; i < arr2.length; i++) {
@@ -89,7 +91,39 @@ function getModuleRoutes(module, routersBaseData,r,routersExData) {
   var routersData = toRealRouteData(filteredData, r);
   return routersData;
 }
+
+/**
+ * 初始化远程定义的路由信息
+ * @param routeComponent
+ */
+function initRemoteRoutes(defaultRouteComponent) {
+  let remoteRoutes=Config.getConfigVal("routes");
+  if(!remoteRoutes){
+    return null;
+  }
+  Utils.visitTree(remoteRoutes,(route,parent,index)=>{
+    if(!route.path){
+      return;
+    }
+    if(!route.name){
+      route.name=route.path.replace(/\//g,"-");
+    }
+    if(!route.component){
+      route.component=defaultRouteComponent;
+    }
+    route.fullPath=`pages/${route.path}`;
+    if(parent){
+      route.path=route.fullPath.substr(parent.fullPath.length+1);
+    }else{
+      route.path=route.fullPath;
+    }
+  });
+  return remoteRoutes;
+}
+
+
 export default {
   getModuleRoutes:getModuleRoutes,
-  toRealRoutes:toRealRouteData
+  toRealRoutes:toRealRouteData,
+  initRemoteRoutes:initRemoteRoutes
 };
