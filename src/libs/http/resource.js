@@ -193,8 +193,11 @@ function ResourceBase(){
             },
             request:function (httpConfig) {
                 var baseUrl = this.baseUrl || defaultHttpOption.baseUrl;
-                if (!_.isEmpty(baseUrl)) {
-                    httpConfig["baseURL"] = baseUrl;
+                //url是绝对路径，不能设置baseUrl
+                if(!httpConfig.url.indexOf('http')==0){
+                    if (!_.isEmpty(baseUrl)) {
+                        httpConfig["baseURL"] = baseUrl;
+                    }
                 }
                 var actionUrl = httpConfig.url;
                 if (actionUrl.indexOf("{") > 0) {
@@ -203,7 +206,7 @@ function ResourceBase(){
                     _.forIn(parsedUrl.vars, function (item) {
                         delete httpConfig.params[item];
                     })
-                }else{
+                }else if(!httpConfig.url.indexOf('http')==0){
                     var tokens=pathToRegexp.parse(actionUrl);
                     actionUrl=pathToRegexp.compile(actionUrl)(httpConfig.params);
                     _.forEach(tokens,token=>{
@@ -221,8 +224,13 @@ function ResourceBase(){
 export default function Resource(url, actions,_options) {
     var self = this || {}, resource =ResourceBase();
     var options=_options||{};
-    //基本地址参数覆盖，root兼容Vue-resource的参数
-    resource.baseUrl=options.root||options.baseUrl||resource.baseUrl;
+    if(!url.indexOf('http')==0){
+        //url是绝对路径，不能设置baseUrl
+        resource.baseUrl=null;
+    }else{
+        //基本地址参数覆盖，root兼容Vue-resource的参数
+        resource.baseUrl=options.root||options.baseUrl||resource.baseUrl;
+    }
 
     actions = _.assign({},
         Resource.actions,
