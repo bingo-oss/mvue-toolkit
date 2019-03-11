@@ -1,10 +1,12 @@
 /**
  * 系统相关配置信息
  */
+
 var http=require("axios");
 var store = require('store2');
 var _=require("../libs/tools/lodash_loader").default;
 var utils=require('../libs/utils').default;
+
 
 
 if (!window.config) {
@@ -47,7 +49,10 @@ function loadServerConfig() {
             store.set(cachedConfigKey(),cachedConfig);
             resolve(cachedConfig);
         }).catch(function (error) {
-            console.log(error.message);
+            console.error(error);
+            if(!error.response){
+                alert("加载配置信息失败，地址如下："+error.config.url);
+            }
             if(error.response.status==404){
                 console.error("请确认配置服务器地址是否正确，配置地址如下：" + getServerConfigUrl());
             }
