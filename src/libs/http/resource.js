@@ -194,7 +194,7 @@ function ResourceBase(){
             request:function (httpConfig) {
                 var baseUrl = this.baseUrl || defaultHttpOption.baseUrl;
                 //url是绝对路径，不能设置baseUrl
-                if(!httpConfig.url.indexOf('http')==0){
+                if(!(httpConfig.url.indexOf('http')==0)){
                     if (!_.isEmpty(baseUrl)) {
                         httpConfig["baseURL"] = baseUrl;
                     }
@@ -206,7 +206,7 @@ function ResourceBase(){
                     _.forIn(parsedUrl.vars, function (item) {
                         delete httpConfig.params[item];
                     })
-                }else if(!httpConfig.url.indexOf('http')==0){
+                }else if(!(httpConfig.url.indexOf('http')==0)){
                     var tokens=pathToRegexp.parse(actionUrl);
                     actionUrl=pathToRegexp.compile(actionUrl)(httpConfig.params);
                     _.forEach(tokens,token=>{
@@ -224,7 +224,7 @@ function ResourceBase(){
 export default function Resource(url, actions,_options) {
     var self = this || {}, resource =ResourceBase();
     var options=_options||{};
-    if(!url.indexOf('http')==0){
+    if(url.indexOf('http')==0){
         //url是绝对路径，不能设置baseUrl
         resource.baseUrl=null;
     }else{
