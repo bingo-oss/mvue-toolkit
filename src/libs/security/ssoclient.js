@@ -20,10 +20,22 @@ function gotoLogin(returnUrl) {
     var url = "";
     if (Config.isLocalLogin()) {
         url = buildLoginUrlForLocal(ssoclientUrl);
+        if(!url){
+            console.error('SSO基础地址为空');
+            return;
+        }
     } else if (Config.getSSOVersion() == "v2") {
         url = buildLoginUrlForV2(ssoclientUrl);
+        if(!url){
+            console.error('SSO基础地址为空');
+            return;
+        }
     } else {
         url = buildLoginUrlForV3(ssoclientUrl);
+        if(!url){
+            console.error('SSO基础地址为空');
+            return;
+        }
         if (Config.getOAuth2FlowType() == "implicit") {
             url += "&response_type=token";
         } else if (Config.getOAuth2FlowType() == "accessCode") {
@@ -38,19 +50,27 @@ function gotoLogin(returnUrl) {
 
 function buildLoginUrlForLocal(returnUrl) {
     var url=Config.getLocalLoginUrl();
+    if(!url){
+        return null;
+    }
     return url=`${url}?return_url=${encodeURIComponent(returnUrl)}`;
-    return url;
 }
 
 
 function buildLoginUrlForV2(returnUrl){
   var url=Config.getSSOServerUrl();
+  if(!url){
+      return null;
+  }
   url+="/v2?openid.mode=checkid_setup&openid.ex.client_id="+(Config.getClientId()||"clientId");
   url+="&openid.return_to="+encodeURIComponent(returnUrl);
   return url;
 }
 function buildLoginUrlForV3(returnUrl){
   var url=Config.getSSOServerUrl();
+  if(!url){
+      return null;
+  }
   url+="/oauth2/authorize?client_id="+Config.getClientId();
   url+="&redirect_uri="+encodeURIComponent(returnUrl);
   url+="&logout_uri="+encodeURIComponent(window.location.protocol+"//"+window.location.host+window.location.pathname+"?_d="+new Date().valueOf()+"#/ssoclient?logout=1&_inframe=true");

@@ -8,7 +8,6 @@ var _=require("../libs/tools/lodash_loader").default;
 var utils=require('../libs/utils').default;
 
 
-
 if (!window.config) {
   console.error("全局配置文件未引入，请检查项目代码");
 }
@@ -23,10 +22,10 @@ function cachedConfigKey(){
 function getConfigVal(key) {
   var cachedConfig=store.get(cachedConfigKey());
   if (cachedConfig == null) {
-      console.error("配置未正确加载，请通过loadServerConfig加载配置。");
+      console.error("应用数据异常，请刷新页面重试。");
       return;
   }
-return cachedConfig[key];
+  return cachedConfig[key];
 };
 
 /**
@@ -66,6 +65,9 @@ function loadServerConfig() {
 * @returns {string}
 */
 function getServerConfigUrl() {
+  if(!window.config){
+      return null;
+  }
   if (window.config.configUrl) {
       return window.config.configUrl;
   }
