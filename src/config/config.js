@@ -6,7 +6,7 @@ var http=require("axios");
 var store = require('store2');
 var _=require("../libs/tools/lodash_loader").default;
 var utils=require('../libs/utils').default;
-
+var localCachedConfig=null;
 
 if (!window.config) {
   console.error("全局配置文件未引入，请检查项目代码");
@@ -22,8 +22,12 @@ function cachedConfigKey(){
 function getConfigVal(key) {
   var cachedConfig=store.get(cachedConfigKey());
   if (cachedConfig == null) {
+    if(localCachedConfig){
+      return localCachedConfig[key];
+    }else{
       console.error("应用数据异常，请刷新页面重试。");
       return;
+    }
   }
   return cachedConfig[key];
 };
@@ -37,6 +41,7 @@ function loadServerConfig() {
         if(_.isEmpty(configUrl)){
             var cachedConfig = _.extend({}, window.config);
             store.set(cachedConfigKey(),cachedConfig);
+            localCachedConfig=cachedConfig;
             resolve(cachedConfig);
             return ;
         }
@@ -46,6 +51,7 @@ function loadServerConfig() {
             }
             var cachedConfig = _.extend({}, window.config, data);
             store.set(cachedConfigKey(),cachedConfig);
+            localCachedConfig=cachedConfig;
             resolve(cachedConfig);
         }).catch(function (error) {
             console.error(error);
