@@ -6,8 +6,7 @@ var http=require("axios");
 var store = require('store2');
 var _=require("../libs/tools/lodash_loader").default;
 var utils=require('../libs/utils').default;
-
-
+var localCachedConfig={};
 
 if (!window.config) {
   console.error("全局配置文件未引入，请检查项目代码");
@@ -21,12 +20,17 @@ function cachedConfigKey(){
 * @returns {*} 配置项的值
 */
 function getConfigVal(key) {
-  var cachedConfig=store.get(cachedConfigKey());
+  let __key=cachedConfigKey();
+  var cachedConfig=store.get(__key);
   if (cachedConfig == null) {
-      console.error("配置未正确加载，请通过loadServerConfig加载配置。");
+    if(localCachedConfig[__key]){
+      return localCachedConfig[__key][key];
+    }else{
+      console.error("应用数据异常，请刷新页面重试。");
       return;
+    }
   }
-return cachedConfig[key];
+  return cachedConfig[key];
 };
 
 /**
@@ -38,6 +42,7 @@ function loadServerConfig() {
         if(_.isEmpty(configUrl)){
             var cachedConfig = _.extend({}, window.config);
             store.set(cachedConfigKey(),cachedConfig);
+            localCachedConfig[cachedConfigKey()]=cachedConfig;
             resolve(cachedConfig);
             return ;
         }
@@ -47,6 +52,7 @@ function loadServerConfig() {
             }
             var cachedConfig = _.extend({}, window.config, data);
             store.set(cachedConfigKey(),cachedConfig);
+            localCachedConfig[cachedConfigKey()]=cachedConfig;
             resolve(cachedConfig);
         }).catch(function (error) {
             console.error(error);
@@ -66,6 +72,9 @@ function loadServerConfig() {
 * @returns {string}
 */
 function getServerConfigUrl() {
+  if(!window.config){
+      return null;
+  }
   if (window.config.configUrl) {
       return window.config.configUrl;
   }
@@ -289,7 +298,7 @@ mergedConfig.getUserApiUrl = function () {
     }
     var base = this.getUumEndpoint();
     if (isEmpty(base)) {
-        base = this.getGatewayUrl();
+        return 'user';
     }
   return `${base}/user`;
 };
@@ -304,7 +313,7 @@ mergedConfig.getOrgApiUrl = function () {
     }
     var base = this.getUumEndpoint();
     if (isEmpty(base)) {
-        base = this.getGatewayUrl();
+        return 'organization';
     }
     return `${base}/organization`;
 };
