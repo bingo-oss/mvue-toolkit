@@ -298,7 +298,7 @@ mergedConfig.getUserApiUrl = function () {
     }
     var base = this.getUumEndpoint();
     if (isEmpty(base)) {
-        base = this.getGatewayUrl();
+        return 'user';
     }
   return `${base}/user`;
 };
@@ -313,7 +313,7 @@ mergedConfig.getOrgApiUrl = function () {
     }
     var base = this.getUumEndpoint();
     if (isEmpty(base)) {
-        base = this.getGatewayUrl();
+        return 'organization';
     }
     return `${base}/organization`;
 };
