@@ -10,6 +10,11 @@ import _ from "../tools/lodash_loader"
 import pathToRegexp from "path-to-regexp";
 
 
+var defaultHttpOption={
+    baseUrl:"",
+    onError:null
+};
+
 Resource.actions = {
     get: {method: 'GET'},
     save: {method: 'POST'},
@@ -71,7 +76,6 @@ http.interceptors.request.use(function (config) {
         pendingRequests[id]=true;
         // 请求发送前加载中提示（延迟）
         window.setTimeout(function () {
-            defaultHttpOption;
             if(!_.isEmpty(pendingRequests)){
                 loading.showLoading();
             }
@@ -256,10 +260,6 @@ export default function Resource(url, actions,_options) {
     return resource;
 }
 
-
-var defaultHttpOption={
-    baseUrl:""
-};
 export function defaultOption(options) {
     _.assign(defaultHttpOption,options);
 }

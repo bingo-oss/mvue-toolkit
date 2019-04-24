@@ -109,7 +109,7 @@ function initRemoteRoutes(defaultRouteComponent) {
       route.name=route.path.replace(/\//g,"-");
     }
     if(!route.component){
-      route.component=defaultRouteComponent;
+      route.component=_.assign({},defaultRouteComponent);
     }
     route.fullPath=`pages/${route.path}`;
     if(parent){
