@@ -10,6 +10,11 @@ import _ from "../tools/lodash_loader"
 import pathToRegexp from "path-to-regexp";
 
 
+var defaultHttpOption={
+    baseUrl:"",
+    onError:null
+};
+
 Resource.actions = {
     get: {method: 'GET'},
     save: {method: 'POST'},
@@ -255,10 +260,6 @@ export default function Resource(url, actions,_options) {
     return resource;
 }
 
-
-var defaultHttpOption={
-    baseUrl:""
-};
 export function defaultOption(options) {
     _.assign(defaultHttpOption,options);
 }
