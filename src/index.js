@@ -30,6 +30,9 @@ const mvueToolkit={
         if(options.vee){
             new validator(vue,options.vee);
         }
+        if(options.http){
+            defaultOption(options.http);
+        }
         if(options.baseUrlForResource){
             defaultOption({
                 baseUrl:options.baseUrlForResource

@@ -10,7 +10,7 @@ import _ from "../tools/lodash_loader"
 import pathToRegexp from "path-to-regexp";
 
 
-var defaultHttpOption={
+let defaultHttpOption={
     baseUrl:"",
     onError:null
 };
