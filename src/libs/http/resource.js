@@ -71,7 +71,6 @@ http.interceptors.request.use(function (config) {
         pendingRequests[id]=true;
         // 请求发送前加载中提示（延迟）
         window.setTimeout(function () {
-            defaultHttpOption;
             if(!_.isEmpty(pendingRequests)){
                 loading.showLoading();
             }
