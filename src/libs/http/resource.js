@@ -12,7 +12,8 @@ import pathToRegexp from "path-to-regexp";
 
 var defaultHttpOption={
     baseUrl:"",
-    onError:null
+    onError:null,
+    showLoading:true
 };
 
 Resource.actions = {
@@ -105,7 +106,7 @@ http.interceptors.response.use(function (response) {
         loading.errorLoading();
     }
 
-    var errorHandler=error.config["onError"] || http.onResponseError;
+    var errorHandler=error.config["onError"] || http.onResponseError || defaultHttpOption.onError;
     var errorShowType="notice"; //ignore、popup、notice；
     if (errorHandler) {
         errorShowType = errorHandler;
@@ -244,7 +245,7 @@ export default function Resource(url, actions,_options) {
     _.forIn(actions, (action, name) => {
         action = _.merge({
             "url":url,
-            "showLoading":true
+            "showLoading":defaultHttpOption.showLoading
         }, action);
         resource[name] = function () {
             var args = Array.prototype.slice.call(arguments);
