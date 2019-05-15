@@ -71,7 +71,9 @@ http.interceptors.request.use(function (config) {
     if (token) {
         config.headers['Authorization']='Bearer '+ token;
     }
-    if(config.showLoading){
+    //如果请求配置了showLoading，用请求配置的
+    //如果没配置用默认的
+    if(config.showLoading||(_.isUndefined(config.showLoading)&&defaultHttpOption.showLoading)){
         var id=_.uniqueId("req");
         config["uid"]=id;
         pendingRequests[id]=true;
@@ -244,8 +246,7 @@ export default function Resource(url, actions,_options) {
 
     _.forIn(actions, (action, name) => {
         action = _.merge({
-            "url":url,
-            "showLoading":defaultHttpOption.showLoading
+            "url":url
         }, action);
         resource[name] = function () {
             var args = Array.prototype.slice.call(arguments);
