@@ -34,9 +34,13 @@ const mvueToolkit={
             defaultOption(options.http);
         }
         if(options.baseUrlForResource){
-            defaultOption({
-                baseUrl:options.baseUrlForResource
-            })
+            let _opts={baseUrl:options.baseUrlForResource};
+            //合并web应用的全局设置
+            if(options.appSettings&&options.appSettings.http){
+                let httpSettings=options.appSettings.http;
+                _.assign(_opts,httpSettings);
+            }
+            defaultOption(_opts);
         }
         new directives(vue);
     }
