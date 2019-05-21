@@ -202,7 +202,10 @@ export default {
                 next();
             } else {
                 //中转
-                ssoclient.gotoLogin(to.fullPath);
+                let nextTo=ssoclient.gotoLogin(to.fullPath);
+                if(nextTo){
+                    next(nextTo);
+                }
             }
         } else {
             next();

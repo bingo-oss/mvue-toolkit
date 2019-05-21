@@ -108,6 +108,15 @@ mergedConfig.getSSOServerUrl = function () {
   var key = "oauth2.serverUrl";
   return getConfigVal(key);
 };
+
+/**
+ * 获取Token授权地址
+ * @returns {*}
+ */
+mergedConfig.getSSOAuthorizeUrl = function () {
+    var key = "oauth2.authorizeUrl";
+    return getConfigVal(key);
+};
 /**
 * 获取SSO服务器版本号
 * @returns {*}

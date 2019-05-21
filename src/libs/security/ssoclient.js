@@ -14,7 +14,7 @@ var qs=require("qs");
 function gotoLogin(returnUrl) {
     var ssoclientUrl = window.location.href;
     if (ssoclientUrl.indexOf("#") > 0) {
-        ssoclientUrl = ssoclientUrl = ssoclientUrl.substring(0, ssoclientUrl.indexOf("#"));
+        ssoclientUrl = ssoclientUrl.substring(0, ssoclientUrl.indexOf("#"));
     }
     ssoclientUrl += "#/ssoclient?returnUrl=" + encodeURIComponent(returnUrl);
     var url = "";
@@ -36,16 +36,25 @@ function gotoLogin(returnUrl) {
             console.error('SSO基础地址为空');
             return;
         }
-        if (Config.getOAuth2FlowType() == "implicit") {
+        if (Config.getOAuth2FlowType() == "implicit"
+            || Config.getOAuth2FlowType() == "link") {
             url += "&response_type=token";
         } else if (Config.getOAuth2FlowType() == "accessCode") {
             url += "&response_type=code";
         } else {
             url += "&response_type=" + encodeURIComponent("code id_token");
         }
-
     }
-    window.location = url;
+    if(!url){
+        alert("未配置配置地址");
+        throw "未配置配置地址";
+    }
+    if(url.charAt(0)=="#"){
+        return {path:url.substring(1)};
+    }else{
+        window.location = url;
+    }
+
 }
 
 function buildLoginUrlForLocal(returnUrl) {
@@ -66,15 +75,22 @@ function buildLoginUrlForV2(returnUrl){
   url+="&openid.return_to="+encodeURIComponent(returnUrl);
   return url;
 }
-function buildLoginUrlForV3(returnUrl){
-  var url=Config.getSSOServerUrl();
-  if(!url){
-      return null;
-  }
-  url+="/oauth2/authorize?client_id="+Config.getClientId();
-  url+="&redirect_uri="+encodeURIComponent(returnUrl);
-  url+="&logout_uri="+encodeURIComponent(window.location.protocol+"//"+window.location.host+window.location.pathname+"?_d="+new Date().valueOf()+"#/ssoclient?logout=1&_inframe=true");
-  return url;
+function buildLoginUrlForV3(returnUrl) {
+    let url = Config.getSSOAuthorizeUrl();
+    if (!url) {
+        url = Config.getSSOServerUrl();
+        if (!url) {
+            return null;
+        }
+        url += "/oauth2/authorize";
+    }
+    if(url.charAt(0)=="#"){
+        returnUrl=returnUrl.substring(returnUrl.indexOf("#"));
+    }
+    url += "?client_id=" + Config.getClientId();
+    url += "&redirect_uri=" + encodeURIComponent(returnUrl);
+    url += "&logout_uri=" + encodeURIComponent(window.location.protocol + "//" + window.location.host + window.location.pathname + "?_d=" + new Date().valueOf() + "#/ssoclient?logout=1&_inframe=true");
+    return url;
 }
 
 /**
@@ -175,7 +191,8 @@ function processCallbackForV2(callback) {
  * @param callback
  */
 function processCallbackForV3(callback){
-  if(Config.getOAuth2FlowType()=="implicit"){
+  if(Config.getOAuth2FlowType()=="implicit"
+      || Config.getOAuth2FlowType() == "link"){
     return onImplictFlow(callback);
   }else{
     return onAccessCodeFlow(callback);
@@ -311,7 +328,7 @@ function ssoLogout(returnUrl) {
 
 export default {
     gotoLogin: function (returnUrl) {
-        gotoLogin(returnUrl);
+        return gotoLogin(returnUrl);
     },
     onSSOCallback: function (callback) {
         onSSOCallback(callback);
