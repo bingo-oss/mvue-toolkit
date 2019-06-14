@@ -8,7 +8,6 @@ import loading from "../tools/loading";
 import modal from "../tools/modal";
 import _ from "../tools/lodash_loader"
 import pathToRegexp from "path-to-regexp";
-import context from "../extend/context";
 
 
 let defaultHttpOption={
