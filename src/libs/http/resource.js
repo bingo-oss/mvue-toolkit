@@ -132,7 +132,7 @@ http.interceptors.response.use(function (response) {
     }
     if(response.status === 401) {
         let route=session.doLogin(window.location.href);
-        if(route && !isLogin){
+        if(route && !isLogining){
             isLogining=true;
             window.setTimeout(()=>{
                 isLogining=false;
