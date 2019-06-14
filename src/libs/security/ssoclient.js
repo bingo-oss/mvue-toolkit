@@ -36,8 +36,7 @@ function gotoLogin(returnUrl) {
             console.error('SSO基础地址为空');
             return;
         }
-        if (Config.getOAuth2FlowType() == "implicit"
-            || Config.getOAuth2FlowType() == "link") {
+        if (Config.getOAuth2FlowType() == "implicit") {
             url += "&response_type=token";
         } else if (Config.getOAuth2FlowType() == "accessCode") {
             url += "&response_type=code";
@@ -49,6 +48,7 @@ function gotoLogin(returnUrl) {
         alert("未配置配置地址");
         throw "未配置配置地址";
     }
+    url+="&raw_return_url="+encodeURIComponent(returnUrl);
     if(url.charAt(0)=="#"){
         return {path:url.substring(1)};
     }else{
@@ -191,8 +191,7 @@ function processCallbackForV2(callback) {
  * @param callback
  */
 function processCallbackForV3(callback){
-  if(Config.getOAuth2FlowType()=="implicit"
-      || Config.getOAuth2FlowType() == "link"){
+  if(Config.getOAuth2FlowType()=="implicit"){
     return onImplictFlow(callback);
   }else{
     return onAccessCodeFlow(callback);

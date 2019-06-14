@@ -8,6 +8,7 @@ import loading from "../tools/loading";
 import modal from "../tools/modal";
 import _ from "../tools/lodash_loader"
 import pathToRegexp from "path-to-regexp";
+import context from "../extend/context";
 
 
 let defaultHttpOption={
@@ -130,7 +131,10 @@ http.interceptors.response.use(function (response) {
         throw error;
     }
     if(response.status === 401) {
-        session.doLogin(window.location.href);
+        let route=session.doLogin(window.location.href);
+        if(route){
+            window.location="#"+route.path;
+        }
     }else if(response.status==404){
         //not found
     }else if (response.status>=400){
