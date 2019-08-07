@@ -266,7 +266,11 @@ function onAccessCodeFlow(callback) {
 }
 
 function checkAccessCode(accessCode,callback) {
-    var tokenUrl = Config.getSSOServerUrl() + "/oauth2/token";
+    //优先读取自定义的tokenUrl，自定义的tokenUrl，可以不需要clientSecret
+    var tokenUrl = Config.getOAuth2TokenUrl();
+    if(!tokenUrl){
+        tokenUrl = Config.getSSOServerUrl() + "/oauth2/token";
+    }
     var reqParam = {
         "grant_type": "authorization_code",
         "code": accessCode
