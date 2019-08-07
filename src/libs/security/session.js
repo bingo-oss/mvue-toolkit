@@ -178,7 +178,7 @@ export default {
     },
     doLogin: function (returnUrl) {
         store.remove(getSessionKey());
-        ssoclient.gotoLogin(returnUrl);
+        return ssoclient.gotoLogin(returnUrl);
     },
     getCurrentUser: function () {
         return session.user;

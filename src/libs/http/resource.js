@@ -96,6 +96,7 @@ http.interceptors.request.use(function (config) {
 });
 
 // Add a response interceptor
+let isLogining=false;
 http.interceptors.response.use(function (response) {
     if(response.config.uid){
          delete pendingRequests[response.config.uid];
@@ -130,7 +131,14 @@ http.interceptors.response.use(function (response) {
         throw error;
     }
     if(response.status === 401) {
-        session.doLogin(window.location.href);
+        let route=session.doLogin(window.location.href);
+        if(route && !isLogin){
+            isLogining=true;
+            window.setTimeout(()=>{
+                isLogining=false;
+                window.location="#"+route.path;
+            },100);
+        }
     }else if(response.status==404){
         //not found
     }else if (response.status>=400){
