@@ -95,6 +95,13 @@ mergedConfig.getSSOServerUrl = function () {
   var key = "oauth2.serverUrl";
   return getConfigVal(key);
 };
+/**
+ * 授权码模式自定义tokenUrl
+ */
+mergedConfig.getOAuth2TokenUrl = function () {
+  var key = "oauth2.tokenUrl";
+  return getConfigVal(key);
+};
 
 /**
  * 获取Token授权地址
