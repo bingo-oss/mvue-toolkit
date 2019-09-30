@@ -1,36 +1,28 @@
 /**
  * 系统相关配置信息
  */
-
-var http=require("axios");
-var store = require('store2');
-var _=require("../libs/tools/lodash_loader").default;
-var utils=require('../libs/utils').default;
-var localCachedConfig={};
+let http=require("axios");
+let _=require("../libs/tools/lodash_loader").default;
+let utils=require('../libs/utils').default;
 
 if (!window.config) {
   console.error("全局配置文件未引入，请检查项目代码");
+  return;
 }
+
+let mergedConfig = _.extend({}, window.config);
+
 function cachedConfigKey(){
   return "_cachedConfig"+utils.getWebContext();
 }
+
 /**
 * 根据配置项Key获取配置
 * @param key 配置项Key
 * @returns {*} 配置项的值
 */
 function getConfigVal(key) {
-  let __key=cachedConfigKey();
-  var cachedConfig=store.get(__key);
-  if (cachedConfig == null) {
-    if(localCachedConfig[__key]){
-      return localCachedConfig[__key][key];
-    }else{
-      console.error("应用数据异常，请刷新页面重试。");
-      return;
-    }
-  }
-  return cachedConfig[key];
+  return mergedConfig[key];
 };
 
 /**
@@ -38,22 +30,17 @@ function getConfigVal(key) {
 */
 function loadServerConfig() {
   return new Promise(function(resolve, reject) {
-        var configUrl=getServerConfigUrl();
+        let configUrl=getServerConfigUrl();
         if(_.isEmpty(configUrl)){
-            var cachedConfig = _.extend({}, window.config);
-            store.set(cachedConfigKey(),cachedConfig);
-            localCachedConfig[cachedConfigKey()]=cachedConfig;
-            resolve(cachedConfig);
+            resolve(mergedConfig);
             return ;
         }
         http.get(getServerConfigUrl()).then(function ({data}) {
             if(window.config.apiBaseUrl){
                 delete data["apiBaseUrl"];
             }
-            var cachedConfig = _.extend({}, window.config, data);
-            store.set(cachedConfigKey(),cachedConfig);
-            localCachedConfig[cachedConfigKey()]=cachedConfig;
-            resolve(cachedConfig);
+            mergedConfig=_.assign(mergedConfig, data);
+            resolve(mergedConfig);
         }).catch(function (error) {
             console.error(error);
             if(!error.response){
@@ -84,7 +71,7 @@ function getServerConfigUrl() {
   return null;
 };
 
-var mergedConfig = _.extend({}, window.config);
+
 /**
 * 获取指定key对应的配置项值
 * @param key
@@ -206,9 +193,8 @@ mergedConfig.getAuthAccessCodeProxyUrl = function () {
 * @returns {*}
 */
 mergedConfig.getApiBaseUrl = function () {
-  var url = "";
-  var key = "apiBaseUrl";
-  url = getConfigVal(key);
+  let key = "apiBaseUrl";
+  let url = getConfigVal(key);
   if (!isEmpty(url)) {
       return url;
   }
@@ -220,9 +206,8 @@ mergedConfig.getApiBaseUrl = function () {
 * @returns {*}
 */
 mergedConfig.getGatewayUrl = function () {
-  var url = "";
-  var key = "service.gateway.endpoint";
-  url = getConfigVal(key);
+  let key = "service.gateway.endpoint";
+  let url = getConfigVal(key);
   if(isEmpty(url)){
       url=this.getApiBaseUrl();
   }
@@ -234,9 +219,8 @@ mergedConfig.getGatewayUrl = function () {
 * @returns {*}
 */
 mergedConfig.getUserInfoUrl = function () {
-  var url = "";
   var key = "service.uam.endpoint";
-  url = getConfigVal(key);
+  let url = getConfigVal(key);
   if (url != null || url.length > 0) {
       return url + "/userinfo";
   }
