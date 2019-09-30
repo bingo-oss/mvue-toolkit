@@ -7,9 +7,7 @@ let utils=require('../libs/utils').default;
 
 if (!window.config) {
   console.error("全局配置文件未引入，请检查项目代码");
-  return;
 }
-
 let mergedConfig = _.extend({}, window.config);
 
 function cachedConfigKey(){
