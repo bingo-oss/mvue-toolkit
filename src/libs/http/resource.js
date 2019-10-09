@@ -8,6 +8,7 @@ import loading from "../tools/loading";
 import modal from "../tools/modal";
 import _ from "../tools/lodash_loader"
 import pathToRegexp from "path-to-regexp";
+import utils from "../utils";
 
 
 let defaultHttpOption={
@@ -124,6 +125,7 @@ http.interceptors.response.use(function (response) {
     var response=error.response;
     if(!response){
         showError({
+            key:true,
             title: "系统提示",
             content: "服务器异常，地址："+error.config.url,
             duration:10
@@ -152,18 +154,21 @@ http.interceptors.response.use(function (response) {
         if(response.status==403){
             message="您没有此操作权限";
             showError({
+                key:403,
                 title: "系统提示",
                 content: message,
                 duration:10
             },errorShowType);
         }else if(response.status==400){
             showError({
+                key:400,
                 title: "系统提示",
                 content: message,
                 duration:10
             },errorShowType);
         }else{
             showError({
+                key:true,
                 title: "系统提示",
                 content: "服务器异常:"+message,
                 duration:10
@@ -172,6 +177,7 @@ http.interceptors.response.use(function (response) {
     }else if(response.status == 0){
         console.error(response.data);
         showError({
+            key:true,
             title: "系统提示",
             content: "请求出现异常，请检查网络连接！",
             duration:10
@@ -180,14 +186,28 @@ http.interceptors.response.use(function (response) {
     return Promise.reject(error);
 });
 
+
+let obj={};
 function showError(error,errorShowType) {
     if(errorShowType=="popup"){
-        modal.error(error);
+        if(error.key){
+            utils.smartAction(obj,error.key,()=>{
+                modal.error(error);
+            },500);
+        }else{
+            modal.error(error);
+        }
     }else{
         if(!error.desc && error.content){
             error["desc"]=error.content;
         }
-        modal.notice(error,"warning");
+        if(error.key){
+            utils.smartAction(obj,error.key,()=>{
+                modal.notice(error, "warning");
+            },500);
+        }else {
+            modal.notice(error, "warning");
+        }
     }
 }
 

@@ -40,12 +40,12 @@ function loadServerConfig() {
             mergedConfig=_.assign(mergedConfig, data);
             resolve(mergedConfig);
         }).catch(function (error) {
-            console.error(error);
-            if(!error.response){
-                alert("加载配置信息失败，地址如下："+error.config.url);
-            }
+            let msg=`配置加载信息失败：${error.config.url}`;
+            console.error(msg);
             if(error.response.status==404){
                 console.error("请确认配置服务器地址是否正确，配置地址如下：" + getServerConfigUrl());
+            }else{
+                alert(msg);
             }
             reject(error);
         });
