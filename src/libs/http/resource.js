@@ -9,12 +9,13 @@ import modal from "../tools/modal";
 import _ from "../tools/lodash_loader"
 import pathToRegexp from "path-to-regexp";
 import utils from "../utils";
+import  configHelper from "../../config";
 
 
 let defaultHttpOption={
     baseUrl:"",
     onError:null,
-    showLoading:true
+    showLoading:true,
 };
 
 Resource.actions = {
@@ -25,6 +26,8 @@ Resource.actions = {
     remove: {method: 'DELETE'},
     delete: {method: 'DELETE'}
 };
+
+
 
 function opts(action, args, name) {
     var options = _.assign({}, action), params = {}, body, _options = {};
@@ -68,9 +71,15 @@ var pendingRequests={};
 http.interceptors.request.use(function (config) {
     config.headers['Cache-Control']="no-cache";
     config.headers["Pragma"]="no-cache";
-    var token = session.getToken();
+    let token = session.getToken();
     if (token) {
         config.headers['Authorization']='Bearer '+ token;
+    }
+    //将不支持的http方法进行转义
+    let methodOverride=configHelper.getConfigVal("system.http.method.override."+config.method.toLowerCase());
+    if(methodOverride){
+        config.headers["X-HTTP-Method-Override"]=config.method;
+        config.method=methodOverride;
     }
     //如果请求配置了showLoading，用请求配置的
     //如果没配置用默认的
