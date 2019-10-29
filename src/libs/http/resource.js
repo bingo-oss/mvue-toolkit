@@ -9,7 +9,7 @@ import modal from "../tools/modal";
 import _ from "../tools/lodash_loader"
 import pathToRegexp from "path-to-regexp";
 import utils from "../utils";
-import  configHelper from "../../config";
+import  configHelper from "../../config/config";
 
 
 let defaultHttpOption={
