@@ -3,21 +3,21 @@
  */
 import _ from "../tools/lodash_loader";
 
-var Config=require("../../config/config.js");
-var Base64=require("js-base64").Base64;
-var http=require("axios");
-var qs=require("qs");
+let Config=require("../../config/config.js");
+let Base64=require("js-base64").Base64;
+let http=require("axios");
+let qs=require("qs");
 
 /**
  * 跳转到sso登录页面
  */
 function gotoLogin(returnUrl) {
-    var ssoclientUrl = window.location.href;
+    let ssoclientUrl = window.location.href;
     if (ssoclientUrl.indexOf("#") > 0) {
         ssoclientUrl = ssoclientUrl.substring(0, ssoclientUrl.indexOf("#"));
     }
     ssoclientUrl += "#/ssoclient?returnUrl=" + encodeURIComponent(returnUrl);
-    var url = "";
+    let url = "";
     if (Config.isLocalLogin()) {
         url = buildLoginUrlForLocal(ssoclientUrl);
         if(!url){
@@ -58,7 +58,7 @@ function gotoLogin(returnUrl) {
 }
 
 function buildLoginUrlForLocal(returnUrl) {
-    var url=Config.getLocalLoginUrl();
+    let url=Config.getLocalLoginUrl();
     if(!url){
         return null;
     }
@@ -67,7 +67,7 @@ function buildLoginUrlForLocal(returnUrl) {
 
 
 function buildLoginUrlForV2(returnUrl){
-  var url=Config.getSSOServerUrl();
+  let url=Config.getSSOServerUrl();
   if(!url){
       return null;
   }
@@ -112,15 +112,18 @@ function onSSOCallback(callback) {
  * @returns {Promise<any>}
  */
 function processCallbackLocal(callback) {
-    var params = resolveParams(window.location.href) || {};
-    var url = Config.getLocalUserInfoUrl() + "?_=" + new Date().getTime();
+    let params = resolveParams(window.location.href) || {};
+    if(hasError(params,true)){
+        return null;
+    }
+    let url = Config.getLocalUserInfoUrl() + "?_=" + new Date().getTime();
     return new Promise(function (resolve, reject) {
         http.get(url).then(function ({data}) {
-            var tokenInfo = {
+            let tokenInfo = {
                 user: {},
                 mode:"local"
             };
-            var user = _.assign({}, data, {anonymous: false});
+            let user = _.assign({}, data, {anonymous: false});
             tokenInfo["user"] = user;
             if (callback) {
                 callback(tokenInfo);
@@ -137,10 +140,10 @@ function processCallbackLocal(callback) {
  * @param callback
  */
 function processCallbackForV2(callback) {
-    var params = resolveParams(window.location.href) || {};
-    var ticket = params["openid.ex.service_ticket"];
-    var tokenUrl = Config.getSSOServerUrl() + "/v2";
-    var reqParam = {
+    let params = resolveParams(window.location.href) || {};
+    let ticket = params["openid.ex.service_ticket"];
+    let tokenUrl = Config.getSSOServerUrl() + "/v2";
+    let reqParam = {
         "openid.mode": "check_authentication",
         "openid.ex.client_id": Config.getClientId(),
         "openid.ex.client_secret": Config.getClientSecret(),
@@ -151,13 +154,13 @@ function processCallbackForV2(callback) {
 
     http.post(tokenUrl, qs.stringify(reqParam), {"responseType": "text"})
         .then(function ({data}) {
-            var arrItems = data.replace(/\r/g, "").split("\\n");
-            var respMap = {};
+            let arrItems = data.replace(/\r/g, "").split("\\n");
+            let respMap = {};
             _.forEach(arrItems, function (item, index) {
                 if (_.isEmpty(item)) {
                     return;
                 }
-                var entry = item.split(":");
+                let entry = item.split(":");
                 if (entry.length != 2) {
                     return;
                 }
@@ -167,7 +170,7 @@ function processCallbackForV2(callback) {
                 console.error("ticket " + ticket + " 无效，错误信息：" + respMap["error"]);
                 return;
             }
-            var tokenInfo = {
+            let tokenInfo = {
                 accessToken: respMap["ex.oauth_access_token"],
                 identity: respMap["identity"],
                 expiresIn: token["ex.oauth_access_token_expires"],
@@ -190,21 +193,24 @@ function processCallbackForV2(callback) {
  * v3版SSO回调 ，验证accessCode获取access_token
  * @param callback
  */
-function processCallbackForV3(callback){
-  if(Config.getOAuth2FlowType()=="implicit"){
-    return onImplictFlow(callback);
-  }else{
-    return onAccessCodeFlow(callback);
-  }
+function processCallbackForV3(callback) {
+    let params = resolveParams(window.location.href) || {};
+    if(hasError(params,true)){
+        return;
+    }
+    if (Config.getOAuth2FlowType() == "implicit") {
+        return onImplictFlow(params, callback);
+    } else {
+        return onAccessCodeFlow(params, callback);
+    }
 }
 
 /**
  * 处理隐式流程
  * @param callback
  */
-function onImplictFlow(callback){
-  var params=resolveParams(window.location.href)||{};
-  var tokenInfo={
+function onImplictFlow(params,callback){
+  let tokenInfo={
       accessToken:params["access_token"],
       expiresIn:params["expires_in"],
       state:params["state"],
@@ -221,11 +227,11 @@ function onImplictFlow(callback){
 }
 
 function getUserInfo(tokenInfo) {
-    var url=Config.getSSOServerUrl()+"/oauth2/userinfo?_="+new Date().getTime();
+    let url=Config.getSSOServerUrl()+"/oauth2/userinfo?_="+new Date().getTime();
     return new Promise(function (resolve,reject) {
         http.get(url,{"headers":{"Authorization":"Bearer "+tokenInfo.accessToken}})
             .then(function ({data}) {
-               var user=_.assign({},data,{
+               let user=_.assign({},data,{
                    name:data["name"] || data["username"],
                    userId:data["sub"],
                    anonymous:false
@@ -242,61 +248,72 @@ function getUserInfo(tokenInfo) {
  * 处理授权码流程
  * @param callback
  */
-function onAccessCodeFlow(callback) {
-  var params=resolveParams(window.location.href)||{};
-  var code=params["code"];
-  checkAccessCode(code,function (token) {
-    var tokenInfo={
-      accessToken:token["access_token"],
-      expiresIn:token["expires_in"],
-      state:token["state"],
-      refreshToken:token["refresh_token"],
-        mode:"v3",
-        modeMore:{
-            flowType:"accessCode"
-        }
-    };
-    getUserInfo(tokenInfo).then(function (userInfo) {
-          if(callback){
-              callback(tokenInfo);
-          }
-      });
-  });
+function onAccessCodeFlow(params,callback) {
+    let code = params["code"];
+    checkAccessCode(code, function (token) {
+        let tokenInfo = {
+            accessToken: token["access_token"],
+            expiresIn: token["expires_in"],
+            state: token["state"],
+            refreshToken: token["refresh_token"],
+            mode: "v3",
+            modeMore: {
+                flowType: "accessCode"
+            }
+        };
+        getUserInfo(tokenInfo).then(function (userInfo) {
+            if (callback) {
+                callback(tokenInfo);
+            }
+        });
+    });
 }
 
 function checkAccessCode(accessCode,callback) {
     //优先读取自定义的tokenUrl，自定义的tokenUrl，可以不需要clientSecret
-    var tokenUrl = Config.getOAuth2TokenUrl();
-    if(!tokenUrl){
+    let tokenUrl = Config.getOAuth2TokenUrl();
+    if (!tokenUrl) {
         tokenUrl = Config.getSSOServerUrl() + "/oauth2/token";
     }
-    var reqParam = {
+    let reqParam = {
         "grant_type": "authorization_code",
         "code": accessCode
     };
-    var basicAuth = getClientAuth();
+    let basicAuth = getClientAuth();
     http.post(tokenUrl, qs.stringify(reqParam), {headers: {'Authorization': basicAuth}})
         .then(function ({data}) {
+            if(hasError(data,true)){
+                return;
+            }
             if (callback) {
                 callback(data);
             }
         }).catch(function (error) {
         console.log(error.message);
     });
+}
 
+function hasError(resp,throwError) {
+    if (resp["error"]) {
+        if(throwError){
+            alert("登录出错：" + resp["error_description"]);
+        }
+        return true;
+    }
+    return false;
 }
 
 function resolveParams(url) {
   if(!url) return;
   url = url + '';
-  var index = url.indexOf('?');
+  let index = url.indexOf('?');
   if(index > -1) {
     url = url.substring(index + 1, url.length);
   }
-  var pairs = url.split('&'), params = {};
-  for(var i = 0; i < pairs.length; i++) {
-    var pair = pairs[i];
-    var indexEq = pair.indexOf('='), key = pair, value = null;
+  let pairs = url.split('&'), params = {};
+  for(let i = 0; i < pairs.length; i++) {
+    let pair = pairs[i];
+    let indexEq = pair.indexOf('='), key = pair, value = null;
     if(indexEq > 0) {
       key = pair.substring(0, indexEq);
       value = decodeURIComponent(pair.substring(indexEq + 1, pair.length));
@@ -307,13 +324,13 @@ function resolveParams(url) {
 }
 
 function getClientAuth() {
-  var clientId=Config.getClientId();
-  var clientSecret=Config.getClientSecret();
+  let clientId=Config.getClientId();
+  let clientSecret=Config.getClientSecret();
   return "Basic "+Base64.encode(clientId+":"+clientSecret);
 }
 
 function ssoLogout(returnUrl) {
-    var url = "";
+    let url = "";
     if (Config.isLocalLogin()) {
         url = Config.getLocalLogoutUrl() + "?return_url=" + encodeURIComponent(returnUrl);
     } else {
