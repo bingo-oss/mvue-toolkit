@@ -121,7 +121,8 @@ function processCallbackLocal(callback) {
         http.get(url).then(function ({data}) {
             let tokenInfo = {
                 user: {},
-                mode:"local"
+                mode:"local",
+                expiresIn: 7200
             };
             let user = _.assign({}, data, {anonymous: false});
             tokenInfo["user"] = user;
