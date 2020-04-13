@@ -193,6 +193,16 @@ mergedConfig.getAuthAccessCodeProxyUrl = function () {
   var key = "oauth2.accessCode.proxyUrl";
   return getConfigVal(key);
 };
+
+mergedConfig.getCookieName = function () {
+    let key = "cookie.name";
+    let cookieName= getConfigVal(key);
+    if(isEmpty(cookieName)){
+        cookieName="m_vue_session_id";
+    }
+    return cookieName;
+};
+
 /**
 *  获取API服务器地址
 * @returns {*}

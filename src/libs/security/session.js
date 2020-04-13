@@ -9,6 +9,7 @@ var _=require("../tools/lodash_loader").default;
 var utils=require('../utils').default;
 var AES = require("crypto-js/aes");
 var encUTF8 = require("crypto-js/enc-utf8");
+let Config=require("../../config/config.js");
 
 
 
@@ -41,6 +42,10 @@ if(store.has(getSessionKey())){
    if(storedSession){
        session=storedSession;
    }
+}
+
+function  getCookieName() {
+    return Config.getCookieName() || sessionCookieKey;
 }
 
 function createLoginRouter(returnUrl){
@@ -77,7 +82,7 @@ function onSSOCallback(callback){
  * @returns {boolean}
  */
 function isLogin() {
-  var sessionId=Cookies.get(sessionCookieKey);
+  var sessionId=Cookies.get(getCookieName());
   if(_.isEmpty(sessionId)||sessionId!=session.sessionId){
     return false;
   }
@@ -89,7 +94,7 @@ function isLogin() {
 
 async function signIn(tokenInfo) {
    //其它窗口已经登录，并且cookie值与store中的数据保存一致，丢弃该授权码，使用本地数据
-    var sessionId=Cookies.get(sessionCookieKey);
+    var sessionId=Cookies.get(getCookieName());
     var storeSession = getStoredSession();
     if (storeSession && storeSession.sessionId==sessionId) {
         session = storeSession;
@@ -104,7 +109,7 @@ async function signIn(tokenInfo) {
     if(tokenInfo.expiresIn){
         session.expires = session.loginTime + tokenInfo.expiresIn * 1000 - 60000;
     }
-    Cookies.set(sessionCookieKey, session.sessionId, {
+    Cookies.set(getCookieName(), session.sessionId, {
         path: utils.getWebContext()
     });
 
@@ -118,7 +123,7 @@ async function signIn(tokenInfo) {
 }
 
 function getStoredSession() {
-    var sessionId=Cookies.get(sessionCookieKey);
+    var sessionId=Cookies.get(getCookieName());
     if(!sessionId){
       return null;
     }
@@ -146,7 +151,7 @@ async function signOut(returnUrl) {
 function removeSession() {
   session=_.extend({},anonymousSession);
   store.remove(getSessionKey());
-  Cookies.remove(sessionCookieKey,{path:utils.getWebContext()});
+  Cookies.remove(getCookieName(),{path:utils.getWebContext()});
   console.log("session logout!");
 }
 
