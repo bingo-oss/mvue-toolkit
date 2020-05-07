@@ -175,6 +175,9 @@ export default {
         }
         return false;
     },
+    refreshToken:function(token){
+        session.token=token;
+    },
     doSignIn: async function (tokenInfo) {
        return signIn(tokenInfo);
     },

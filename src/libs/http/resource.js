@@ -16,6 +16,7 @@ let defaultHttpOption={
     baseUrl:"",
     onError:null,
     showLoading:true,
+    tokenRefresh:null
 };
 
 Resource.actions = {
@@ -26,8 +27,6 @@ Resource.actions = {
     remove: {method: 'DELETE'},
     delete: {method: 'DELETE'}
 };
-
-
 
 function opts(action, args, name) {
     var options = _.assign({}, action), params = {}, body, _options = {};
@@ -105,6 +104,27 @@ http.interceptors.request.use(function (config) {
     return Promise.reject(error);
 });
 
+async function onUnauthorized(error){
+    let token=null;
+    if(defaultHttpOption.tokenRefresh){
+        token=await defaultHttpOption.tokenRefresh(error);
+    }
+    if(!token){
+        let route=session.doLogin(window.location.href);
+        if(route && !isLogining){
+            isLogining=true;
+            window.setTimeout(()=>{
+                isLogining=false;
+                window.location="#"+route.path;
+            },100);
+        }
+        return;
+    }
+    session.refreshToken(token);
+    error.config["baseURL"]="";
+    return http.request(error.config);
+}
+
 // Add a response interceptor
 let isLogining=false;
 http.interceptors.response.use(function (response) {
@@ -142,13 +162,9 @@ http.interceptors.response.use(function (response) {
         throw error;
     }
     if(response.status === 401) {
-        let route=session.doLogin(window.location.href);
-        if(route && !isLogining){
-            isLogining=true;
-            window.setTimeout(()=>{
-                isLogining=false;
-                window.location="#"+route.path;
-            },100);
+        let retryPromise=onUnauthorized(error);
+        if(retryPromise){
+            return retryPromise;
         }
     }else if(response.status==404){
         //not found
@@ -191,8 +207,9 @@ http.interceptors.response.use(function (response) {
             content: "请求出现异常，请检查网络连接！",
             duration:10
         },errorShowType);
+    }else{
+        return Promise.reject(error);
     }
-    return Promise.reject(error);
 });
 
 
