@@ -175,8 +175,17 @@ export default {
         }
         return false;
     },
-    refreshToken:function(token){
-        session.token=token;
+    refreshToken:async function(params){
+        let tokenInfo={
+            accessToken:params["access_token"],
+            expiresIn:params["expires_in"],
+            state:params["state"],
+            mode:"v3",
+        };
+        await ssoclient.getUserInfo(tokenInfo);
+        removeSession();
+        let reVal=await this.doSignIn(tokenInfo);
+        return reVal;
     },
     doSignIn: async function (tokenInfo) {
        return signIn(tokenInfo);

@@ -104,10 +104,35 @@ http.interceptors.request.use(function (config) {
     return Promise.reject(error);
 });
 
+let refreshTokenRequests=null;
+function tryRefreshToken(error){
+    return new Promise((resolve) => {
+        if(refreshTokenRequests!=null){
+            refreshTokenRequests.resolves.push(resolve);
+            return;
+        }
+        refreshTokenRequests={
+            error:error,
+            resolves:[resolve],
+        }
+        window.setTimeout(async ()=>{
+            let token=await defaultHttpOption.tokenRefresh(refreshTokenRequests.error);
+            if(token) {
+                await session.refreshToken(token);
+            }
+            refreshTokenRequests.resolves.forEach((rs)=>{
+                rs(token);
+            });
+            refreshTokenRequests=null;
+        },300);
+    });
+}
+
 async function onUnauthorized(error){
     let token=null;
-    if(defaultHttpOption.tokenRefresh){
-        token=await defaultHttpOption.tokenRefresh(error);
+    let retry=error.config["retry"] ||0;
+    if(defaultHttpOption.tokenRefresh && retry<1){
+        token=await tryRefreshToken(error);
     }
     if(!token){
         let route=session.doLogin(window.location.href);
@@ -120,8 +145,8 @@ async function onUnauthorized(error){
         }
         return;
     }
-    session.refreshToken(token);
     error.config["baseURL"]="";
+    error.config["retry"]=retry+1;
     return http.request(error.config);
 }
 

@@ -356,6 +356,9 @@ export default {
     },
     ssoLogout: function (returnUrl) {
         ssoLogout(returnUrl);
+    },
+    getUserInfo:function (tokenInfo) {
+        return getUserInfo(tokenInfo);
     }
 }
 
