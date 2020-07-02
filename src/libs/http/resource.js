@@ -116,14 +116,15 @@ function tryRefreshToken(error){
             resolves:[resolve],
         }
         window.setTimeout(async ()=>{
-            let token=await defaultHttpOption.tokenRefresh(refreshTokenRequests.error);
+            let oldTokenRequests=refreshTokenRequests;
+            refreshTokenRequests=null;
+            let token=await defaultHttpOption.tokenRefresh(oldTokenRequests.error);
             if(token) {
                 await session.refreshToken(token);
             }
-            refreshTokenRequests.resolves.forEach((rs)=>{
+            oldTokenRequests.resolves.forEach((rs)=>{
                 rs(token);
             });
-            refreshTokenRequests=null;
         },300);
     });
 }
@@ -191,6 +192,7 @@ http.interceptors.response.use(function (response) {
         if(retryPromise){
             return retryPromise;
         }
+        return;
     }else if(response.status==404){
         //not found
     }else if (response.status>=400){
@@ -232,9 +234,8 @@ http.interceptors.response.use(function (response) {
             content: "请求出现异常，请检查网络连接！",
             duration:10
         },errorShowType);
-    }else{
-        return Promise.reject(error);
     }
+    return Promise.reject(error);
 });
 
 
